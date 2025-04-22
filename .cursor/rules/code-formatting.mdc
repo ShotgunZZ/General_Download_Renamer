@@ -1,0 +1,27 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Code Formatting
+
+Use 2 spaces for indentation.
+Avoid unnecessary curly braces in simple conditionals.
+Ensure consistent file and directory naming (e.g., lowercase with dashes for folders).
+
+# Project Structure (General Download Renamer V1.0)
+
+```
+/
+├── manifest.json
+├── icons/
+│   └── icon16.png  // (and other required sizes)
+├── background/
+│   └── service-worker.js // (MV3 uses service workers)
+├── options/
+│   ├── options.html
+│   ├── options.css
+│   └── options.js
+└── utils/          // (Optional, for shared functions)
+    └── filenameUtils.js
+```

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>General Download Renamer - Options</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <h1>General Download Renamer</h1>
+    
+    <div class="option-group">
+      <label class="toggle-label">
+        <span>Enable automatic renaming</span>
+        <div class="toggle-switch">
+          <input type="checkbox" id="enabled" checked>
+          <span class="toggle-slider"></span>
+        </div>
+      </label>
+    </div>
+    
+    <div class="option-group">
+      <label for="pattern">Renaming Pattern:</label>
+      <input type="text" id="pattern" placeholder="{date}_{originalFilename}{ext}">
+      
+      <div class="pattern-info">
+        <h3>Available Placeholders:</h3>
+        <ul>
+          <li><code>{domain}</code> - The domain name of the download source</li>
+          <li><code>{timestamp}</code> - Full date and time (YYYYMMDD-HHMMSS)</li>
+          <li><code>{date}</code> - Date only (YYYYMMDD)</li>
+          <li><code>{time}</code> - Time only (HHMMSS)</li>
+          <li><code>{originalFilename}</code> - The original filename without extension</li>
+          <li><code>{ext}</code> - The file extension including the dot</li>
+        </ul>
+        <h3>Examples:</h3>
+        <ul>
+          <li><code>{date}_{originalFilename}{ext}</code> → 20231001_document.pdf</li>
+          <li><code>{domain}_{timestamp}{ext}</code> → example.com_20231001-120530.pdf</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="button-group">
+      <button id="save-btn" class="primary-btn">Save Settings</button>
+      <span id="status-message"></span>
+    </div>
+  </div>
+  
+  <script src="options.js"></script>
+</body>
+</html> 

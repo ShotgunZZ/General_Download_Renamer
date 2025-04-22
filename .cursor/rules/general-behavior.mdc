@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# General AI Behavior
+
+Keep responses concise and to the point unless detailed explanations are requested.
+Avoid making changes to unrelated files unless explicitly instructed.
+Prioritize readability and maintainability over complex optimizations.

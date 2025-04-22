@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Documentation
+
+Add JSDoc comments for all functions and components.
+Include TODO comments for unimplemented functions.

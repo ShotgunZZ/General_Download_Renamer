@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Project Synchronization
+
+Always verify that proposed actions and code changes align with the project requirements defined in [PRD.md](mdc:PRD.md) and the development plan in [TASK_BREAKDOWN.md](mdc:TASK_BREAKDOWN.md).
+
+If any decisions or changes made during the conversation affect the project's scope, features, or task plan, update both [PRD.md](mdc:PRD.md) and [TASK_BREAKDOWN.md](mdc:TASK_BREAKDOWN.md) accordingly to reflect the current state.

@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Error Handling
+
+Always include proper error handling in code.
+Use try/catch blocks for async operations and log errors appropriately.

@@ -1,0 +1,17 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Coding Standards
+
+Always follow clean code principles.
+Use consistent naming conventions (e.g., camelCase for variables, PascalCase for components).
+Prefer functional programming and modular design.
+
+# Tech Stack (General Download Renamer V1.0)
+- Manifest V3
+- JavaScript (ES6+)
+- HTML5
+- CSS3
+- Chrome Extension APIs (`chrome.downloads`, `chrome.storage`)

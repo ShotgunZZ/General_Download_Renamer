@@ -90,13 +90,30 @@ function splitFilename(filename) {
   };
 }
 
-// Export functions for use in other modules
-// These will be implemented in Phase 4
-// export {
-//   sanitizeFilename,
-//   extractDomain,
-//   getFormattedDate,
-//   getFormattedTime,
-//   getFormattedTimestamp,
-//   splitFilename
-// }; 
+/**
+ * Processes a pattern string, replacing placeholders with actual values
+ * @param {string} pattern - The pattern with placeholders like {date}, {domain}, etc.
+ * @param {Object} values - Object containing values for each placeholder
+ * @returns {string} The processed string with placeholders replaced
+ */
+function processPattern(pattern, values) {
+  let result = pattern;
+  
+  // Replace each placeholder with its corresponding value
+  for (const [placeholder, value] of Object.entries(values)) {
+    result = result.replace(new RegExp(`{${placeholder}}`, 'g'), value);
+  }
+  
+  return result;
+}
+
+// Export functions for use in service-worker.js
+export {
+  sanitizeFilename,
+  extractDomain,
+  getFormattedDate,
+  getFormattedTime,
+  getFormattedTimestamp,
+  splitFilename,
+  processPattern
+}; 

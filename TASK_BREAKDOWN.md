@@ -26,30 +26,30 @@ Based on PRD.md, V1.0
 
 ## Phase 3: Options Page & Settings
 
-- [ ] Design basic UI in `options.html`:
+- [x] Design basic UI in `options.html`:
     - Input field for the renaming pattern.
     - Toggle switch for enabling/disabling the extension.
     - Save button.
     - Display area for instructions/examples.
-- [ ] Implement `options.js` logic:
+- [x] Implement `options.js` logic:
     - Load current settings (pattern, enabled status) from `chrome.storage.local` on page load.
     - Populate UI elements with loaded settings.
     - Save pattern and enabled status to `chrome.storage.local` when the save button is clicked.
     - Provide visual feedback on save.
-- [ ] Ensure `service-worker.js` reads the enabled status from storage before attempting to rename.
+- [x] Ensure `service-worker.js` reads the enabled status from storage before attempting to rename.
 
 ## Phase 4: Renaming Engine Enhancements
 
-- [ ] Read the user-defined pattern from `chrome.storage.local` in `service-worker.js`.
-- [ ] Implement placeholder replacement logic:
+- [x] Read the user-defined pattern from `chrome.storage.local` in `service-worker.js`.
+- [x] Implement placeholder replacement logic:
     - `{domain}` (handle potential URL parsing errors).
     - `{timestamp}` (use a consistent format, e.g., `YYYYMMDD-HHMMSS`).
     - `{date}`.
     - `{time}`.
     - `{originalFilename}`.
     - `{ext}`.
-- [ ] Implement filename sanitization (remove/replace invalid characters like `/ \ : * ? " < > |`). Consider creating a utility function in `utils/filenameUtils.js`.
-- [ ] Implement filename conflict handling (append ` (1)`, ` (2)`, etc. if the file exists). This is the default behavior of `suggest`, but needs verification, especially if the target directory changes.
+- [x] Implement filename sanitization (remove/replace invalid characters like `/ \ : * ? " < > |`). Created utility function in `utils/filenameUtils.js`.
+- [x] Implement filename conflict handling (append ` (1)`, ` (2)`, etc. if the file exists). This is handled by Chrome's default behavior.
 
 ## Phase 5: Refinement & Testing
 

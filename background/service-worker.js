@@ -3,6 +3,17 @@
  * Handles download interception and renaming logic
  */
 
+// Import utility functions
+import {
+  sanitizeFilename,
+  extractDomain,
+  getFormattedDate,
+  getFormattedTime,
+  getFormattedTimestamp,
+  splitFilename,
+  processPattern
+} from '../utils/filenameUtils.js';
+
 // Default renaming pattern
 const DEFAULT_PATTERN = '{date}_{originalFilename}{ext}';
 
@@ -31,44 +42,6 @@ chrome.storage.onChanged.addListener((changes) => {
 });
 
 /**
- * Utility function - Splits a filename into name and extension parts
- * @param {string} filename - The filename to split
- * @returns {Object} Object containing {name, ext} properties
- */
-function splitFilename(filename) {
-  // Find the last occurrence of a dot
-  const lastDotIndex = filename.lastIndexOf('.');
-  
-  // If there's no dot or it's at the start, consider the whole string as the name
-  if (lastDotIndex <= 0) {
-    return {
-      name: filename,
-      ext: ''
-    };
-  }
-  
-  // Split into name and extension
-  return {
-    name: filename.substring(0, lastDotIndex),
-    ext: filename.substring(lastDotIndex) // Includes the dot
-  };
-}
-
-/**
- * Utility function - Formats the current date as YYYYMMDD
- * @returns {string} The formatted date
- */
-function getFormattedDate() {
-  const now = new Date();
-  const year = now.getFullYear();
-  // Add leading zeros for month and day
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  
-  return `${year}${month}${day}`;
-}
-
-/**
  * Processes a download and suggests a new filename based on the current pattern
  * @param {Object} downloadItem - The Chrome download item object
  * @param {Function} suggest - Callback to suggest the new filename
@@ -83,12 +56,32 @@ function processDownload(downloadItem, suggest) {
   try {
     // Get the original filename and split it
     const originalFilename = downloadItem.filename;
-    const { name, ext } = splitFilename(originalFilename);
+    const { name: nameWithoutExt, ext } = splitFilename(originalFilename);
     
-    // For Phase 2, we'll use a simple hardcoded pattern with just date and original name
-    // In Phase 4, we'll implement the full pattern replacement
+    // Get download source URL and extract domain
+    const sourceUrl = downloadItem.url || '';
+    const domain = extractDomain(sourceUrl);
+    
+    // Get current date and time
     const date = getFormattedDate();
-    const newFilename = `${date}_${name}${ext}`;
+    const time = getFormattedTime();
+    const timestamp = getFormattedTimestamp();
+    
+    // Create placeholder values object
+    const placeholders = {
+      domain: domain,
+      timestamp: timestamp,
+      date: date,
+      time: time,
+      originalFilename: nameWithoutExt,
+      ext: ext
+    };
+    
+    // Process the user's pattern to replace placeholders
+    let newFilename = processPattern(userPattern, placeholders);
+    
+    // Sanitize the new filename to remove invalid characters
+    newFilename = sanitizeFilename(newFilename);
     
     console.log(`Renaming: ${originalFilename} -> ${newFilename}`);
     

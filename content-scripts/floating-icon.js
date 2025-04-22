@@ -184,11 +184,23 @@
 
   /**
    * Updates the icon's appearance based on the enabled state.
-   * (Simple version: adjust opacity)
+   * (Adds/removes .active/.inactive classes)
    */
   function updateIconAppearance() {
     if (!floatingIcon) return;
-    floatingIcon.style.opacity = currentSettings.enabled ? '1' : '0.6';
+    
+    if (currentSettings.enabled) {
+      floatingIcon.classList.add('active');
+      floatingIcon.classList.remove('inactive');
+      // Ensure opacity is set correctly if transitioning from inactive
+      // floatingIcon.style.opacity = '1'; 
+    } else {
+      floatingIcon.classList.add('inactive');
+      floatingIcon.classList.remove('active');
+      // Ensure opacity is set correctly if transitioning from active
+      // floatingIcon.style.opacity = '0.65'; 
+    }
+    // Opacity is now handled by the CSS classes, so direct style manipulation is removed.
   }
 
   /**

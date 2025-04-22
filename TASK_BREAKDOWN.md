@@ -16,13 +16,13 @@ Based on PRD.md, V1.0
 
 ## Phase 2: Download Interception & Basic Renaming
 
-- [ ] Implement listener in `service-worker.js` for `chrome.downloads.onDeterminingFilename`.
-- [ ] Inside the listener, retrieve download metadata (URL, original filename).
-- [ ] Implement basic renaming logic (e.g., prefix with date).
+- [x] Implement listener in `service-worker.js` for `chrome.downloads.onDeterminingFilename`.
+- [x] Inside the listener, retrieve download metadata (URL, original filename).
+- [x] Implement basic renaming logic (e.g., prefix with date).
     - Parse original filename and extension.
     - Construct a new filename based on a *hardcoded* simple pattern initially.
     - Suggest the new filename using the `suggest` callback.
-- [ ] Test basic renaming functionality.
+- [x] Test basic renaming functionality.
 
 ## Phase 3: Options Page & Settings
 

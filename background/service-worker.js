@@ -94,6 +94,42 @@ function processDownload(downloadItem, suggest) {
   }
 }
 
+// Listen for extension install or update
+chrome.runtime.onInstalled.addListener((details) => {
+  console.log('Extension installed or updated:', details.reason);
+  
+  // Set default settings if not already set
+  chrome.storage.local.get(['enabled', 'pattern'], (result) => {
+    const settings = {};
+    
+    if (result.enabled === undefined) {
+      settings.enabled = true;
+    }
+    
+    if (!result.pattern) {
+      settings.pattern = DEFAULT_PATTERN;
+    }
+    
+    if (Object.keys(settings).length > 0) {
+      chrome.storage.local.set(settings, () => {
+        console.log('Default settings set:', settings);
+      });
+    }
+  });
+});
+
+// Listen for messages from popup
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log('Received message:', message);
+  
+  if (message.action === 'openOptionsPage') {
+    chrome.runtime.openOptionsPage();
+  }
+  
+  // Always return true if you're sending a response asynchronously
+  return true;
+});
+
 // Implement the download listener
 chrome.downloads.onDeterminingFilename.addListener(processDownload);
 

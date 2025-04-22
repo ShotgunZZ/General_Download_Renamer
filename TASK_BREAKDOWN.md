@@ -1,6 +1,6 @@
 # Task Breakdown: General Download Renamer Chrome Extension (V1.0)
 
-Based on PRD.md, V1.0
+Based on PRD.md, V1.0 (Updated for Floating Icon)
 
 ## Phase 1: Core Setup & Manifest
 
@@ -41,22 +41,39 @@ Based on PRD.md, V1.0
 ## Phase 4: Renaming Engine Enhancements
 
 - [x] Read the user-defined pattern from `chrome.storage.local` in `service-worker.js`.
-- [x] Implement placeholder replacement logic:
-    - `{domain}` (handle potential URL parsing errors).
-    - `{timestamp}` (use a consistent format, e.g., `YYYYMMDD-HHMMSS`).
-    - `{date}`.
-    - `{time}`.
-    - `{originalFilename}`.
-    - `{ext}`.
-- [x] Implement filename sanitization (remove/replace invalid characters like `/ \ : * ? " < > |`). Created utility function in `utils/filenameUtils.js`.
-- [x] Implement filename conflict handling (append ` (1)`, ` (2)`, etc. if the file exists). This is handled by Chrome's default behavior.
+- [x] Implement placeholder replacement logic (domain, timestamp, date, time, originalFilename, ext) in `utils/filenameUtils.js`.
+- [x] Implement filename sanitization (remove/replace invalid characters) in `utils/filenameUtils.js`.
+- [x] Ensure background script uses the utilities for renaming.
+- [x] Rely on Chrome's default conflict handling.
 
-## Phase 5: Refinement & Testing
+## Phase 5: Floating Icon & Popup Menu
+
+- [ ] Create `content-scripts/floating-icon.css`:
+    - Basic styling for the floating icon (fixed position, size, border-radius, cursor).
+    - Styling for the popup menu triggered by the icon (mimic `popup.css` structure/theme).
+- [ ] Create `content-scripts/floating-icon.js`:
+    - Function to inject icon CSS.
+    - Function to create icon element (div + img).
+    - Function to create (initially hidden) popup panel element.
+    - Function (`updatePopupContent`) to:
+        - Read `enabled` and `pattern` from `chrome.storage.local`.
+        - Build HTML for the popup menu (toggle, options button, pattern display).
+        - Add event listeners to elements *within* the popup (toggle change saves to storage, options button opens options page).
+    - Function (`showPopup`) to call `updatePopupContent`, position the panel near the icon, and make it visible.
+    - Function (`hidePopup`) to hide the panel.
+    - Basic dragging logic for the icon (`mousedown`, `mousemove`, `mouseup`).
+    - Click handler for the icon (left-click calls `showPopup`, right-click does nothing).
+    - Document click listener to call `hidePopup` if clicked outside the icon/popup.
+    - Listener for `chrome.storage.onChanged` to update icon state/popup if visible.
+    - Initialization logic to run on page load.
+- [ ] Update `manifest.json` to include the content script.
+
+## Phase 6: Refinement & Testing
 
 - [ ] Add clear instructions and examples to `options.html`.
-- [ ] Set a sensible default pattern if no pattern is saved in storage.
-- [ ] Thoroughly test with various download sources, filenames, and edge cases (e.g., `data:` URLs, files with no extension, very long filenames).
-- [ ] Test enabling/disabling functionality.
-- [ ] Test conflict handling.
+- [ ] Set a sensible default pattern if no pattern is saved in storage (`onInstalled` in background).
+- [ ] Thoroughly test renaming with various sources, filenames, and edge cases.
+- [ ] Test floating icon dragging and popup menu functionality (enable/disable toggle, options link).
+- [ ] Test interaction between popup/options page and storage.
 - [ ] Review code for clarity, error handling, and adherence to standards.
 - [ ] Add JSDoc comments where needed. 

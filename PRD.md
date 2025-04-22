@@ -6,11 +6,12 @@ This document outlines the requirements for a Chrome browser extension designed 
 
 **2. Goals**
 
-*   Automatically rename files downloaded via the Chrome browser upon completion (or suggest the name beforehand).
+*   Automatically rename files downloaded via the Chrome browser upon completion.
 *   Allow users to define a flexible renaming pattern using placeholders.
 *   Improve the organization of users' download folders.
 *   Provide a simple and intuitive configuration interface.
 *   Operate reliably with minimal user intervention after initial setup.
+*   Provide quick access to enable/disable and configure the extension via a floating icon on web pages.
 
 **3. Target Audience**
 
@@ -39,20 +40,30 @@ This document outlines the requirements for a Chrome browser extension designed 
     *   **Filename Conflict Handling:** If the generated filename already exists in the target download directory, automatically append a sequential number similar to Chrome's default behavior (e.g., `filename (1).ext`, `filename (2).ext`).
 
 *   **Configuration:**
-    *   Provide a standard Chrome Extension Options page.
+    *   Provide a standard Chrome Extension Options page accessible via the extension list.
     *   Allow users to input and save their desired renaming pattern string.
     *   Display clear instructions and examples of how to use placeholders.
-    *   Include a toggle switch to easily enable/disable the renaming functionality.
+    *   Include a toggle switch to enable/disable renaming functionality *on the Options page*.
     *   Persist the user's settings using `chrome.storage.local` or `chrome.storage.sync`.
     *   Provide a sensible default pattern (e.g., `{date}_{originalFilename}{ext}` or `{domain}_{originalFilename}{ext}`).
+
+*   **Floating Draggable Icon:**
+    *   Inject a persistent, draggable icon (`icons/icon48.png`) onto web pages.
+    *   **Left Click:** Opens a small popup menu visually similar to the original browser action popup. This menu will contain:
+        *   A toggle switch to enable/disable renaming.
+        *   A button/link to open the full Options page.
+        *   A display of the current renaming pattern.
+    *   **Right Click:** Does nothing (prevents default context menu).
+    *   Icon appearance can be simple, no specific visual state indication (like ON/OFF text or glow) required for V1.0 based on this simplified approach.
 
 **5. Technical Considerations**
 
 *   **Platform:** Google Chrome Extension (Manifest V3).
-*   **Permissions:** `downloads` (required), `storage` (required for saving settings).
-*   **APIs:** `chrome.downloads`, `chrome.storage`.
-*   **Background Script:** Logic for listening to downloads and applying renaming rules.
-*   **Options Page:** Simple HTML/CSS/JS page for configuration.
+*   **Permissions:** `downloads`, `storage`. (Removed `tabs`).
+*   **APIs:** `chrome.downloads`, `chrome.storage`, `chrome.runtime`.
+*   **Background Script:** Handles download listener, pattern processing, and settings storage.
+*   **Options Page:** HTML/CSS/JS for full configuration.
+*   **Content Script:** Injects icon, handles dragging, handles icon clicks (left/right), creates and manages the icon's popup menu, interacts with `chrome.storage` to get/set state.
 
 **6. Non-Goals (V1.0)**
 
@@ -61,14 +72,14 @@ This document outlines the requirements for a Chrome browser extension designed 
 *   Renaming files *already existing* in the Downloads folder (only handles new downloads).
 *   Complex conditional logic in renaming patterns (e.g., different patterns based on file type or domain).
 *   Syncing settings across multiple devices (can use `chrome.storage.sync` later if desired, but start with `local`).
-*   Providing a browser action popup (can be added later).
 *   Direct integration with specific webmail clients (this is a *general* downloader, unlike the previous project concept).
 
 **7. Future Considerations (Post V1.0)**
 
 *   More advanced pattern options (regex replacements, substring extraction).
 *   Conditional rules (e.g., different patterns for different domains or file types).
-*   UI improvements (e.g., a popup for quick enable/disable, history of renamed files).
+*   UI improvements (e.g., history of renamed files).
 *   Option to choose timestamp format.
 *   Option to configure conflict resolution behavior (overwrite, skip, number).
 *   Syncing settings via `chrome.storage.sync`.
+*   Customizable appearance for the floating icon (size, color, position memory).

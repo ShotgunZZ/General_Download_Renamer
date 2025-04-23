@@ -61,11 +61,23 @@
   function showPopup() {
     if (!popupPanel || !floatingIcon) return;
 
-    chrome.storage.local.get(['enabled', 'pattern'], (result) => {
+    // Fetch pattern AND separator
+    chrome.storage.local.get(['enabled', 'pattern', 'separator'], (result) => {
       currentSettings.enabled = result.enabled !== undefined ? result.enabled : true;
       currentSettings.pattern = result.pattern || DEFAULT_PATTERN;
+      // Use underscore as default separator if none is saved
+      currentSettings.separator = result.separator !== undefined ? result.separator : '_'; 
 
-      // Build popup HTML
+      // --- Construct Preview String ---
+      const placeholdersInPattern = (currentSettings.pattern.match(/\{([^}]+)\}/g) || [])
+        .map(p => p.slice(1, -1)) // Extract name from {name}
+        .filter(p => p !== 'ext'); // Exclude {ext}
+      const previewString = placeholdersInPattern
+        .map(p => `{${p}}`) // Re-add braces for display
+        .join(currentSettings.separator); // Join with loaded separator
+      // --- End Preview Construction ---
+
+      // Build popup HTML, using the constructed previewString
       popupPanel.innerHTML = `
         <h3>Download Renamer</h3>
         <div class="dr-toggle-container">
@@ -81,7 +93,8 @@
           <button id="dr-popup-options-btn" class="dr-button">Options</button>
         </div>
         <div class="dr-footer">
-          Current pattern: <span class="dr-current-pattern">${escapeHtml(currentSettings.pattern)}</span>
+          Current pattern:
+          <span class="dr-current-pattern">${escapeHtml(previewString)}<code>.{ext}</code></span> 
         </div>
       `;
 

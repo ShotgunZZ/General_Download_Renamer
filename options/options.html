@@ -10,35 +10,52 @@
   <div class="container">
     <h1>General Download Renamer</h1>
     
-    <div class="option-group">
-      <label class="toggle-label">
-        <span>Enable automatic renaming</span>
-        <div class="toggle-switch">
-          <input type="checkbox" id="enabled" checked>
-          <span class="toggle-slider"></span>
-        </div>
-      </label>
-    </div>
-    
-    <div class="option-group">
-      <label for="pattern">Renaming Pattern:</label>
-      <input type="text" id="pattern" placeholder="{date}_{originalFilename}{ext}">
+    <div class="option-group pattern-builder">
+      <label>Build your Renaming Pattern:</label>
       
-      <div class="pattern-info">
-        <h3>Available Placeholders:</h3>
+      <!-- Placeholder Descriptions Area -->
+      <div id="placeholder-descriptions" class="pattern-info">
+        <h4>Available Placeholders:</h4>
         <ul>
-          <li><code>{domain}</code> - The domain name of the download source</li>
-          <li><code>{timestamp}</code> - Full date and time (YYYYMMDD-HHMMSS)</li>
-          <li><code>{date}</code> - Date only (YYYYMMDD)</li>
-          <li><code>{time}</code> - Time only (HHMMSS)</li>
-          <li><code>{originalFilename}</code> - The original filename without extension</li>
-          <li><code>{ext}</code> - The file extension including the dot</li>
+          <!-- Descriptions will be added here by JS -->
         </ul>
-        <h3>Examples:</h3>
-        <ul>
-          <li><code>{date}_{originalFilename}{ext}</code> → 20231001_document.pdf</li>
-          <li><code>{domain}_{timestamp}{ext}</code> → example.com_20231001-120530.pdf</li>
-        </ul>
+      </div>
+
+      <p class="description">Drag blocks from the list below to 'Current Pattern Sequence'. The file extension <code>{ext}</code> will always be added automatically.</p>
+      
+      <div class="builder-area">
+        <div class="block-container available-blocks">
+          <h3>Available Placeholders</h3>
+          <div id="available-blocks-list">
+            <!-- Draggable blocks will be added here by JS -->
+          </div>
+        </div>
+        
+        <div class="block-container pattern-sequence-container">
+          <h3>Current Pattern Sequence</h3>
+          
+          <!-- Separator Selection -->
+          <div class="separator-selector">
+            <label for="separator-select">Separator between blocks:</label>
+            <select id="separator-select">
+              <option value="_">Underscore (_)</option>
+              <option value=".">Period (.)</option>
+              <option value="-">Hyphen (-)</option>
+              <option value="*">Asterisk (*)</option>
+              <option value="x">Letter (x)</option>
+              <option value=" ">Space ( )</option>
+              <option value="">None</option> 
+            </select>
+          </div>
+
+           <div id="pattern-sequence" class="drop-zone">
+             <!-- Dropped blocks will appear here -->
+             <span class="placeholder-text">Drop blocks here</span>
+           </div>
+           <div class="pattern-preview">
+             <strong>Preview:</strong> <span id="pattern-preview-text"></span><code>.{ext}</code>
+           </div>
+        </div>
       </div>
     </div>
     

@@ -91,20 +91,36 @@ function splitFilename(filename) {
 }
 
 /**
- * Processes a pattern string, replacing placeholders with actual values
- * @param {string} pattern - The pattern with placeholders like {date}, {domain}, etc.
- * @param {Object} values - Object containing values for each placeholder
- * @returns {string} The processed string with placeholders replaced
+ * Processes a pattern string, replacing placeholders with actual values and joining with a separator.
+ * @param {string} pattern - The pattern with placeholders like {date}{originalFilename} (separators are NOT in this string).
+ * @param {Object} values - Object containing values for each placeholder (e.g., { date: '20230101', originalFilename: 'report'}).
+ * @param {string} separator - The string to insert between replaced placeholder values.
+ * @returns {string} The processed string with placeholders replaced and joined by the separator.
  */
-function processPattern(pattern, values) {
-  let result = pattern;
-  
-  // Replace each placeholder with its corresponding value
-  for (const [placeholder, value] of Object.entries(values)) {
-    result = result.replace(new RegExp(`{${placeholder}}`, 'g'), value);
-  }
-  
-  return result;
+function processPattern(pattern, values, separator) {
+  // 1. Extract the ordered list of placeholders from the pattern string (excluding {ext})
+  const placeholdersInPattern = (pattern.match(/\{([^}]+)\}/g) || [])
+    .map(p => p.slice(1, -1)) // Extract name from {name}
+    .filter(p => p !== 'ext'); // Exclude {ext}
+
+  // 2. Get the corresponding value for each placeholder in the pattern's order
+  const processedValues = placeholdersInPattern.map(ph => {
+    // Return the value from the values object, or the placeholder itself if value not found
+    return values[ph] !== undefined ? values[ph] : `{${ph}}`; 
+  });
+
+  // 3. Join the processed values using the specified separator
+  // Filter out any potentially empty strings that might result from missing values 
+  // before joining, unless the separator itself is empty.
+  const joinedString = separator === '' 
+      ? processedValues.join('') 
+      : processedValues.filter(v => v !== '').join(separator);
+
+  // 4. Append the {ext} value (which is passed in the `values` object)
+  // Note: The pattern string itself doesn't contain {ext} anymore in this logic.
+  const extension = values['ext'] || ''; // Get extension from values
+
+  return joinedString + extension;
 }
 
 // Export functions for use in service-worker.js

@@ -39,13 +39,20 @@ This document outlines the requirements for a Chrome browser extension designed 
     *   **Filename Sanitization:** Automatically remove characters that are invalid in filenames on common operating systems (e.g., `/ \ : * ? " < > |`). Replace them with a safe character like an underscore (`_`) or remove them.
     *   **Filename Conflict Handling:** If the generated filename already exists in the target download directory, automatically append a sequential number similar to Chrome's default behavior (e.g., `filename (1).ext`, `filename (2).ext`).
 
-*   **Configuration:**
+*   **Configuration (Options Page):**
     *   Provide a standard Chrome Extension Options page accessible via the extension list.
-    *   Allow users to input and save their desired renaming pattern string.
-    *   Display clear instructions and examples of how to use placeholders.
-    *   Include a toggle switch to enable/disable renaming functionality *on the Options page*.
-    *   Persist the user's settings using `chrome.storage.local` or `chrome.storage.sync`.
-    *   Provide a sensible default pattern (e.g., `{date}_{originalFilename}{ext}` or `{domain}_{originalFilename}{ext}`).
+    *   **Pattern Builder:**
+        *   Display available placeholders (`{domain}`, `{timestamp}`, `{date}`, `{time}`, `{originalFilename}`) as distinct draggable blocks.
+        *   Provide a target area (drop zone) where users can drag these blocks to construct the desired filename format.
+        *   Allow users to reorder blocks within the target area by dragging and dropping.
+        *   Allow users to remove blocks from the target area.
+        *   **Separator Selection:** Provide a dropdown menu allowing users to select a separator character (`_`, `.`, `-`, `*`, `x`, ` ` (space), `None` (no separator)) to be placed *between* each block in the sequence.
+        *   The `{ext}` placeholder is *implicitly* appended to the end of the constructed pattern when saved; it is not displayed as a draggable block or affected by the separator.
+    *   Include a toggle switch to easily enable/disable the overall renaming functionality.
+    *   Provide a "Save Settings" button.
+    *   Persist the constructed pattern *string* (e.g., `{date}{originalFilename}{ext}`), the selected `separator` character, and the `enabled` status using `chrome.storage.local`.
+    *   Load the saved settings on page load and reconstruct the visual block arrangement and separator selection.
+    *   Display a live preview of the filename format based on the current block sequence and selected separator.
 
 *   **Floating Draggable Icon:**
     *   Inject a persistent, draggable icon (`icons/icon48.png`) onto web pages.
@@ -59,10 +66,11 @@ This document outlines the requirements for a Chrome browser extension designed 
 **5. Technical Considerations**
 
 *   **Platform:** Google Chrome Extension (Manifest V3).
-*   **Permissions:** `downloads`, `storage`. (Removed `tabs`).
-*   **APIs:** `chrome.downloads`, `chrome.storage`, `chrome.runtime`.
-*   **Background Script:** Handles download listener, pattern processing, and settings storage.
-*   **Options Page:** HTML/CSS/JS for full configuration.
+*   **Permissions:** `downloads`, `storage`.
+*   **APIs:** `chrome.downloads`, `chrome.storage`, `chrome.runtime`, HTML Drag and Drop API.
+*   **Background Script:** Handles download listener, reads pattern string *and* separator from storage, calls pattern processing utility.
+*   **Options Page:** HTML/CSS/JS implementing the drag-and-drop pattern builder UI, separator selection, and settings persistence.
+*   **Utility Script (`utils/filenameUtils.js`):** The `processPattern` function needs modification to accept the separator and apply it between resolved placeholder values.
 *   **Content Script:** Injects icon, handles dragging, handles icon clicks (left/right), creates and manages the icon's popup menu, interacts with `chrome.storage` to get/set state.
 
 **6. Non-Goals (V1.0)**
@@ -73,6 +81,7 @@ This document outlines the requirements for a Chrome browser extension designed 
 *   Complex conditional logic in renaming patterns (e.g., different patterns based on file type or domain).
 *   Syncing settings across multiple devices (can use `chrome.storage.sync` later if desired, but start with `local`).
 *   Direct integration with specific webmail clients (this is a *general* downloader, unlike the previous project concept).
+*   Static text separators in drag-and-drop UI.
 
 **7. Future Considerations (Post V1.0)**
 
@@ -83,3 +92,4 @@ This document outlines the requirements for a Chrome browser extension designed 
 *   Option to configure conflict resolution behavior (overwrite, skip, number).
 *   Syncing settings via `chrome.storage.sync`.
 *   Customizable appearance for the floating icon (size, color, position memory).
+*   Allowing static text/separators in pattern builder UI.

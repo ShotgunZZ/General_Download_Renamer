@@ -1,6 +1,6 @@
 # Task Breakdown: General Download Renamer Chrome Extension (V1.0)
 
-Based on PRD.md, V1.0 (Updated for Floating Icon)
+Based on PRD.md, V1.0 (Updated for Floating Icon & DND Options)
 
 ## Phase 1: Core Setup & Manifest
 
@@ -12,68 +12,81 @@ Based on PRD.md, V1.0 (Updated for Floating Icon)
     - Define required icons (`icons` property).
 - [x] Create placeholder icon files (`icons/icon16.png`, etc.).
 - [x] Create basic `background/service-worker.js` file.
-- [x] Create basic `options/options.html`, `options.css`, `options.js` files.
+- [x] Create basic `options/options.html`, `options.css`, `options.js` files (placeholders for now).
 
-## Phase 2: Download Interception & Basic Renaming
+## Phase 2: Download Interception & Renaming Engine
 
 - [x] Implement listener in `service-worker.js` for `chrome.downloads.onDeterminingFilename`.
-- [x] Inside the listener, retrieve download metadata (URL, original filename).
-- [x] Implement basic renaming logic (e.g., prefix with date).
-    - Parse original filename and extension.
-    - Construct a new filename based on a *hardcoded* simple pattern initially.
-    - Suggest the new filename using the `suggest` callback.
-- [x] Test basic renaming functionality.
-
-## Phase 3: Options Page & Settings
-
-- [x] Design basic UI in `options.html`:
-    - Input field for the renaming pattern.
-    - Toggle switch for enabling/disabling the extension.
-    - Save button.
-    - Display area for instructions/examples.
-- [x] Implement `options.js` logic:
-    - Load current settings (pattern, enabled status) from `chrome.storage.local` on page load.
-    - Populate UI elements with loaded settings.
-    - Save pattern and enabled status to `chrome.storage.local` when the save button is clicked.
-    - Provide visual feedback on save.
-- [x] Ensure `service-worker.js` reads the enabled status from storage before attempting to rename.
-
-## Phase 4: Renaming Engine Enhancements
-
-- [x] Read the user-defined pattern from `chrome.storage.local` in `service-worker.js`.
 - [x] Implement placeholder replacement logic (domain, timestamp, date, time, originalFilename, ext) in `utils/filenameUtils.js`.
-- [x] Implement filename sanitization (remove/replace invalid characters) in `utils/filenameUtils.js`.
-- [x] Ensure background script uses the utilities for renaming.
+- [x] Implement filename sanitization in `utils/filenameUtils.js`.
+- [x] Ensure background script uses the utilities and respects the `enabled` status from `chrome.storage.local`.
 - [x] Rely on Chrome's default conflict handling.
 
-## Phase 5: Floating Icon & Popup Menu
+## Phase 3: Options Page - Drag-and-Drop UI & Separator
 
-- [ ] Create `content-scripts/floating-icon.css`:
-    - Basic styling for the floating icon (fixed position, size, border-radius, cursor).
-    - Styling for the popup menu triggered by the icon (mimic `popup.css` structure/theme).
-- [ ] Create `content-scripts/floating-icon.js`:
-    - Function to inject icon CSS.
-    - Function to create icon element (div + img).
-    - Function to create (initially hidden) popup panel element.
-    - Function (`updatePopupContent`) to:
-        - Read `enabled` and `pattern` from `chrome.storage.local`.
-        - Build HTML for the popup menu (toggle, options button, pattern display).
-        - Add event listeners to elements *within* the popup (toggle change saves to storage, options button opens options page).
-    - Function (`showPopup`) to call `updatePopupContent`, position the panel near the icon, and make it visible.
-    - Function (`hidePopup`) to hide the panel.
-    - Basic dragging logic for the icon (`mousedown`, `mousemove`, `mouseup`).
-    - Click handler for the icon (left-click calls `showPopup`, right-click does nothing).
-    - Document click listener to call `hidePopup` if clicked outside the icon/popup.
-    - Listener for `chrome.storage.onChanged` to update icon state/popup if visible.
-    - Initialization logic to run on page load.
-- [ ] Update `manifest.json` to include the content script.
+- [ ] Design UI in `options.html`:
+    - Remove text input for pattern.
+    - Create a container for available placeholder blocks (`#available-blocks`).
+    - Create a container for the user-built pattern (`#pattern-sequence`).
+    - Add a dropdown (`#separator-select`) for choosing separators (`_`, `.`, `-`, `*`, `x`, ` ` (space), `None` (value="")).
+    - Keep the toggle switch for enabling/disabling the extension.
+    - Keep the Save button.
+- [ ] Style UI in `options.css`:
+    - Style the available blocks container and the pattern sequence container.
+    - Style the individual draggable blocks.
+    - Style the separator dropdown and its label.
+    - Add visual cues for dragging (e.g., `dragging` class, `drag-over` class on target).
+- [ ] Implement `options.js` logic:
+    - **Load:**
+        - Load `enabled` status and set toggle switch.
+        - Load saved `pattern` string.
+        - Load saved `separator` and set dropdown value (default if needed).
+        - Define available placeholders: `[\'domain\', \'timestamp\', \'date\', \'time\', \'originalFilename\']`.
+        - Populate `#available-blocks` with draggable elements for each placeholder.
+        - Parse the loaded pattern string (using regex `/\{([^}]+)\}/g`, ignore `{ext}`) and create corresponding blocks in `#pattern-sequence`.
+        - Call `updatePreview()` after loading.
+    - **Drag/Drop:**
+        - Add `dragstart` listeners to blocks in `#available-blocks`.
+        - Add `dragover` and `drop` listeners to `#pattern-sequence` to handle dropping *new* blocks.
+        - When dropping, create a *clone* of the block in the target, add necessary attributes/listeners (including making it draggable for reordering and adding a remove button).
+        - Implement reordering *within* `#pattern-sequence` using drag/drop on the contained blocks.
+        - Add event listeners to remove buttons on blocks in `#pattern-sequence`.
+    - **Separator Change:**
+        - Add `change` listener to `#separator-select` that calls `updatePreview()`.
+    - **Preview Update (`updatePreview`):**
+        - Get the current separator value from the dropdown.
+        - Get the sequence of blocks.
+        - Join the block text content using the selected separator.
+        - Update the preview text span.
+    - **Save:**
+        - On save button click, read the `data-placeholder` attribute from blocks in `#pattern-sequence` in order.
+        - Construct the pattern string by joining them: `{p1}{p2}...`.
+        - Append `{ext}` to the string.
+        - Get the selected separator value.
+        - Save the constructed `pattern` string, the `enabled` status, and the `separator` to `chrome.storage.local`.
+        - Provide visual feedback on save.
+
+## Phase 4: Floating Icon & Popup Menu
+
+- [x] Create `content-scripts/floating-icon.css` (Styles already created).
+- [x] Create `content-scripts/floating-icon.js` (Functionality already implemented).
+- [x] Update `manifest.json` to include the content script (Done).
+
+## Phase 5: Background Script Separator Logic
+
+- [ ] Modify `utils/filenameUtils.js`:
+    - Update `processPattern` function to accept `separator` as an argument.
+    - Inside `processPattern`, after replacing placeholders, join the results using the provided separator.
+- [ ] Modify `background/service-worker.js`:
+    - Load `separator` setting from storage during initialization and on change.
+    - Pass the loaded `separator` value to `processPattern` within the `processDownload` function.
 
 ## Phase 6: Refinement & Testing
 
-- [ ] Add clear instructions and examples to `options.html`.
-- [ ] Set a sensible default pattern if no pattern is saved in storage (`onInstalled` in background).
-- [ ] Thoroughly test renaming with various sources, filenames, and edge cases.
-- [ ] Test floating icon dragging and popup menu functionality (enable/disable toggle, options link).
+- [ ] Set sensible defaults (`pattern`, `separator`, `enabled`) if no settings are saved (`onInstalled` in background).
+- [ ] Thoroughly test renaming with various sources, filenames, edge cases, and different separators (including 'None').
+- [ ] Test floating icon dragging and popup menu functionality.
+- [ ] Test options page drag-and-drop and separator selection thoroughly.
 - [ ] Test interaction between popup/options page and storage.
 - [ ] Review code for clarity, error handling, and adherence to standards.
 - [ ] Add JSDoc comments where needed. 

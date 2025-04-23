@@ -1,58 +1,64 @@
 /* General Styles */
 body {
-  font-family: Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f5f5f5;
+  background-color: #f7f7f7;
   color: #333;
   line-height: 1.6;
 }
 
 .container {
   max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+  margin: 20px auto;
+  padding: 25px;
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
-  color: #1a73e8;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  color: #0056b3; /* Darker blue */
+  margin: 0 0 25px 0;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+  font-weight: 600;
 }
 
-/* Form Elements */
+/* Option Group Styling */
 .option-group {
-  margin-bottom: 20px;
-  padding: 15px;
-  background: #f9f9f9;
-  border-radius: 4px;
+  margin-bottom: 25px;
+  padding: 20px;
+  background: #fdfdfd;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
 }
 
-label {
+.option-group label {
   display: block;
-  margin-bottom: 8px;
-  font-weight: bold;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #555;
 }
 
-input[type="text"] {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  box-sizing: border-box;
+.option-group .description {
+  font-size: 13px;
+  color: #666;
+  margin: -5px 0 15px 0;
 }
 
-/* Toggle Switch */
+/* Enable Toggle */
+.enable-toggle {
+  background-color: #f0f8ff; /* Light blue background */
+  border-left: 3px solid #4a90e2;
+}
+
+/* Toggle Switch (reuse existing styles, maybe adjust color) */
 .toggle-label {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  cursor: pointer;
 }
 
 .toggle-switch {
@@ -93,65 +99,252 @@ input[type="text"] {
 }
 
 input:checked + .toggle-slider {
-  background-color: #1a73e8;
+  background-color: #007bff; /* Primary blue */
 }
 
 input:checked + .toggle-slider:before {
   transform: translateX(26px);
 }
 
-/* Pattern Info */
+/* Pattern Info (Adjusted for Descriptions) */
 .pattern-info {
-  margin-top: 15px;
-  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 20px; /* Add space below descriptions */
+  padding: 15px;
   background: #f0f4f8;
   border-left: 3px solid #1a73e8;
   border-radius: 0 4px 4px 0;
 }
 
-.pattern-info h3 {
-  margin-top: 10px;
-  margin-bottom: 5px;
-  font-size: 15px;
+.pattern-info h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 600;
   color: #1a73e8;
 }
 
 .pattern-info ul {
-  padding-left: 20px;
+  padding-left: 0; /* Remove default list padding */
+  list-style: none; /* Remove bullets */
+  margin: 0;
 }
 
-code {
-  background: #e8f0fe;
-  padding: 2px 4px;
+.pattern-info li {
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #444;
+}
+
+.pattern-info code {
+  background: #d4e4ff;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-family: monospace;
+  margin-right: 5px;
+  color: #333;
+}
+
+/* Pattern Builder */
+.pattern-builder {
+  padding-top: 15px;
+}
+
+.builder-area {
+  display: flex;
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.block-container {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  background-color: #fff;
+  flex-grow: 1;
+}
+
+.block-container h3 {
+  margin: 0 0 15px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #eee;
+}
+
+/* Available Blocks Area */
+.available-blocks {
+  flex-basis: 35%;
+  background-color: #f9f9f9;
+}
+
+#available-blocks-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Pattern Sequence Area */
+.pattern-sequence-container {
+  flex-basis: 65%;
+}
+
+#pattern-sequence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 15px;
+  border: 2px dashed #ccc;
+  border-radius: 5px;
+  min-height: 50px; /* Ensure it has height */
+  background-color: #fdfdfd;
+  margin-bottom: 15px;
+  align-items: center;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+#pattern-sequence.drag-over {
+  background-color: #e8f4ff; /* Light blue when dragging over */
+  border-color: #007bff;
+}
+
+#pattern-sequence .placeholder-text {
+  color: #999;
+  font-style: italic;
+  width: 100%;
+  text-align: center;
+}
+
+/* Draggable Blocks */
+.placeholder-block {
+  display: inline-flex; /* Use inline-flex */
+  align-items: center; 
+  padding: 6px 12px;
+  background-color: #e8f0fe;
+  border: 1px solid #c3d9ff;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 13px;
+  cursor: grab;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  position: relative; /* For remove button positioning */
+  white-space: nowrap; /* Prevent wrapping */
+}
+
+.placeholder-block:hover {
+  background-color: #d4e4ff;
+  border-color: #a0c3ff;
+}
+
+.placeholder-block.dragging {
+  opacity: 0.5;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Remove Button on Blocks in Sequence */
+.remove-block-btn {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  line-height: 16px; /* Center 'x' */
+  text-align: center;
+  cursor: pointer;
+  margin-left: 8px;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.remove-block-btn:hover {
+  background: #cc0000;
+}
+
+/* Pattern Preview */
+.pattern-preview {
+  margin-top: 10px;
+  padding: 10px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #555;
+}
+
+.pattern-preview code {
+  background: #e0e0e0;
+  padding: 1px 4px;
   border-radius: 3px;
   font-family: monospace;
 }
 
-/* Button Styles */
+/* Save Button & Status */
 .button-group {
   display: flex;
   align-items: center;
+  margin-top: 25px;
 }
 
 .primary-btn {
-  background-color: #1a73e8;
+  background-color: #007bff; /* Primary blue */
   color: white;
   border: none;
   padding: 10px 20px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   transition: background-color 0.2s;
 }
 
 .primary-btn:hover {
-  background-color: #155db1;
+  background-color: #0056b3;
 }
 
 #status-message {
   margin-left: 15px;
   font-size: 14px;
+  font-weight: 500;
   opacity: 0;
   transition: opacity 0.3s;
+  color: #28a745; /* Green for success */
+}
+
+code {
+  /* General code tag styling if needed */
+  background-color: #eee;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+/* Separator Selector Styling */
+.separator-selector {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-left: 3px solid #fdac41; /* Orange accent */
+  border-radius: 4px;
+}
+
+.separator-selector label {
+  margin-bottom: 0; /* Override default margin */
+  font-weight: normal;
+  font-size: 13px;
+  color: #555;
+}
+
+#separator-select {
+  padding: 5px 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  flex-grow: 1; /* Allow it to take remaining space */
+  max-width: 200px; /* Optional: Limit max width */
 } 

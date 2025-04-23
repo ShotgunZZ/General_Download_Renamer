@@ -15,17 +15,20 @@ import {
 } from '../utils/filenameUtils.js';
 
 // Default renaming pattern
-const DEFAULT_PATTERN = '{date}_{originalFilename}{ext}';
+const DEFAULT_PATTERN = '{date}{originalFilename}{ext}';
+const DEFAULT_SEPARATOR = '_';
 
 // Track the current state of the extension
 let isEnabled = true;
 let userPattern = DEFAULT_PATTERN;
+let userSeparator = DEFAULT_SEPARATOR;
 
 // Initialize extension state from storage
-chrome.storage.local.get(['enabled', 'pattern'], (result) => {
+chrome.storage.local.get(['enabled', 'pattern', 'separator'], (result) => {
   isEnabled = result.enabled !== undefined ? result.enabled : true;
   userPattern = result.pattern || DEFAULT_PATTERN;
-  console.log('Extension initialized:', { isEnabled, userPattern });
+  userSeparator = result.separator !== undefined ? result.separator : DEFAULT_SEPARATOR;
+  console.log('Extension initialized:', { isEnabled, userPattern, userSeparator });
 });
 
 // Listen for storage changes to update settings dynamically
@@ -39,10 +42,15 @@ chrome.storage.onChanged.addListener((changes) => {
     userPattern = changes.pattern.newValue;
     console.log('Renaming pattern changed:', userPattern);
   }
+  
+  if (changes.separator !== undefined) {
+    userSeparator = changes.separator.newValue;
+    console.log('Separator changed:', userSeparator);
+  }
 });
 
 /**
- * Processes a download and suggests a new filename based on the current pattern
+ * Processes a download and suggests a new filename based on the current pattern and separator
  * @param {Object} downloadItem - The Chrome download item object
  * @param {Function} suggest - Callback to suggest the new filename
  */
@@ -77,8 +85,8 @@ function processDownload(downloadItem, suggest) {
       ext: ext
     };
     
-    // Process the user's pattern to replace placeholders
-    let newFilename = processPattern(userPattern, placeholders);
+    // Process the user's pattern, passing the separator
+    let newFilename = processPattern(userPattern, placeholders, userSeparator);
     
     // Sanitize the new filename to remove invalid characters
     newFilename = sanitizeFilename(newFilename);
@@ -99,7 +107,7 @@ chrome.runtime.onInstalled.addListener((details) => {
   console.log('Extension installed or updated:', details.reason);
   
   // Set default settings if not already set
-  chrome.storage.local.get(['enabled', 'pattern'], (result) => {
+  chrome.storage.local.get(['enabled', 'pattern', 'separator'], (result) => {
     const settings = {};
     
     if (result.enabled === undefined) {
@@ -108,6 +116,10 @@ chrome.runtime.onInstalled.addListener((details) => {
     
     if (!result.pattern) {
       settings.pattern = DEFAULT_PATTERN;
+    }
+    
+    if (result.separator === undefined) {
+      settings.separator = DEFAULT_SEPARATOR;
     }
     
     if (Object.keys(settings).length > 0) {

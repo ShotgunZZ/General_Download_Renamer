@@ -26,4 +26,9 @@ Thumbs.db
 .cursor/
 
 # Temporary files
-*.tmp 
+*.tmp
+
+# New files
+PRD.md
+TASK_BREAKDOWN.md
+future_dev_plan.md 

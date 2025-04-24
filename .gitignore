@@ -1,0 +1,29 @@
+# Dependencies
+/node_modules
+
+# Build files
+*.zip
+dist/
+build/
+
+# Log files
+*.log
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables
+.env*
+!.env.example
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+.cursor/
+
+# Temporary files
+*.tmp 

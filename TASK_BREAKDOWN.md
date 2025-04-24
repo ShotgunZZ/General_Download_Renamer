@@ -24,47 +24,47 @@ Based on PRD.md, V1.0 (Updated for Floating Icon & DND Options)
 
 ## Phase 3: Options Page - Drag-and-Drop UI & Separator
 
-- [ ] Design UI in `options.html`:
-    - Remove text input for pattern.
-    - Create a container for available placeholder blocks (`#available-blocks`).
-    - Create a container for the user-built pattern (`#pattern-sequence`).
-    - Add a dropdown (`#separator-select`) for choosing separators (`_`, `.`, `-`, `*`, `x`, ` ` (space), `None` (value="")).
-    - Keep the toggle switch for enabling/disabling the extension.
-    - Keep the Save button.
-- [ ] Style UI in `options.css`:
-    - Style the available blocks container and the pattern sequence container.
-    - Style the individual draggable blocks.
-    - Style the separator dropdown and its label.
-    - Add visual cues for dragging (e.g., `dragging` class, `drag-over` class on target).
-- [ ] Implement `options.js` logic:
+- [x] Design UI in `options.html`:
+    - [x] Remove text input for pattern.
+    - [x] Create a container for available placeholder blocks (`#available-blocks`).
+    - [x] Create a container for the user-built pattern (`#pattern-sequence`).
+    - [x] Add a dropdown (`#separator-select`) for choosing separators (`_`, `.`, `-`, `*`, `x`, ` ` (space), `None` (value="")).
+    - [x] Remove the toggle switch for enabling/disabling the extension (per user request).
+    - [x] Keep the Save button.
+- [x] Style UI in `options.css`:
+    - [x] Style the available blocks container and the pattern sequence container.
+    - [x] Style the individual draggable blocks.
+    - [x] Style the separator dropdown and its label.
+    - [x] Add visual cues for dragging (e.g., `dragging` class, `drag-over` class on target).
+- [x] Implement `options.js` logic:
     - **Load:**
-        - Load `enabled` status and set toggle switch.
-        - Load saved `pattern` string.
-        - Load saved `separator` and set dropdown value (default if needed).
-        - Define available placeholders: `[\'domain\', \'timestamp\', \'date\', \'time\', \'originalFilename\']`.
-        - Populate `#available-blocks` with draggable elements for each placeholder.
-        - Parse the loaded pattern string (using regex `/\{([^}]+)\}/g`, ignore `{ext}`) and create corresponding blocks in `#pattern-sequence`.
-        - Call `updatePreview()` after loading.
+        - [x] Load saved `pattern` string.
+        - [x] Load saved `separator` and set dropdown value (default if needed).
+        - [x] Define available placeholders: `['domain', 'timestamp', 'date', 'time', 'originalFilename']`.
+        - [x] Populate `#available-blocks` with draggable elements for each placeholder.
+        - [x] Parse the loaded pattern string (using regex `/\{([^}]+)\}/g`, ignore `{ext}`) and create corresponding blocks in `#pattern-sequence`.
+        - [x] Call `updatePreview()` after loading.
     - **Drag/Drop:**
-        - Add `dragstart` listeners to blocks in `#available-blocks`.
-        - Add `dragover` and `drop` listeners to `#pattern-sequence` to handle dropping *new* blocks.
-        - When dropping, create a *clone* of the block in the target, add necessary attributes/listeners (including making it draggable for reordering and adding a remove button).
-        - Implement reordering *within* `#pattern-sequence` using drag/drop on the contained blocks.
-        - Add event listeners to remove buttons on blocks in `#pattern-sequence`.
+        - [x] Add `dragstart` listeners to blocks in `#available-blocks`.
+        - [x] Add `dragover` and `drop` listeners to `#pattern-sequence` to handle dropping *new* blocks.
+        - [x] When dropping, create a *clone* of the block in the target, add necessary attributes/listeners (including making it draggable for reordering and adding a remove button).
+        - [x] Implement reordering *within* `#pattern-sequence` using drag/drop on the contained blocks.
+        - [x] Add event listeners to remove buttons on blocks in `#pattern-sequence`.
+        - [x] Fix bugs with missing remove buttons and placeholder synchronization between available and sequence lists.
     - **Separator Change:**
-        - Add `change` listener to `#separator-select` that calls `updatePreview()`.
+        - [x] Add `change` listener to `#separator-select` that calls `updatePreview()`.
     - **Preview Update (`updatePreview`):**
-        - Get the current separator value from the dropdown.
-        - Get the sequence of blocks.
-        - Join the block text content using the selected separator.
-        - Update the preview text span.
+        - [x] Get the current separator value from the dropdown.
+        - [x] Get the sequence of blocks.
+        - [x] Join the block text content using the selected separator.
+        - [x] Update the preview text span.
     - **Save:**
-        - On save button click, read the `data-placeholder` attribute from blocks in `#pattern-sequence` in order.
-        - Construct the pattern string by joining them: `{p1}{p2}...`.
-        - Append `{ext}` to the string.
-        - Get the selected separator value.
-        - Save the constructed `pattern` string, the `enabled` status, and the `separator` to `chrome.storage.local`.
-        - Provide visual feedback on save.
+        - [x] On save button click, read the `data-placeholder` attribute from blocks in `#pattern-sequence` in order.
+        - [x] Construct the pattern string by joining them: `{p1}{p2}...`.
+        - [x] Append `{ext}` to the string.
+        - [x] Get the selected separator value.
+        - [x] Save the constructed `pattern` string and the `separator` to `chrome.storage.local`.
+        - [x] Provide visual feedback on save.
 
 ## Phase 4: Floating Icon & Popup Menu
 
@@ -74,16 +74,18 @@ Based on PRD.md, V1.0 (Updated for Floating Icon & DND Options)
 
 ## Phase 5: Background Script Separator Logic
 
-- [ ] Modify `utils/filenameUtils.js`:
-    - Update `processPattern` function to accept `separator` as an argument.
-    - Inside `processPattern`, after replacing placeholders, join the results using the provided separator.
-- [ ] Modify `background/service-worker.js`:
-    - Load `separator` setting from storage during initialization and on change.
-    - Pass the loaded `separator` value to `processPattern` within the `processDownload` function.
+- [x] Modify `utils/filenameUtils.js`:
+    - [x] Update `processPattern` function to accept `separator` as an argument.
+    - [x] Inside `processPattern`, after replacing placeholders, join the results using the provided separator.
+- [x] Modify `background/service-worker.js`:
+    - [x] Load `separator` setting from storage during initialization and on change.
+    - [x] Load `enabled` flag (managed solely by the floating icon popup, not the options page). 
+    - [x] Pass the loaded `separator` value to `processPattern` within the `processDownload` function.
+    - [x] Only process downloads when `enabled` is true.
 
 ## Phase 6: Refinement & Testing
 
-- [ ] Set sensible defaults (`pattern`, `separator`, `enabled`) if no settings are saved (`onInstalled` in background).
+- [x] Set sensible defaults (`pattern`, `separator`, `enabled`) if no settings are saved (`onInstalled` in background).
 - [ ] Thoroughly test renaming with various sources, filenames, edge cases, and different separators (including 'None').
 - [ ] Test floating icon dragging and popup menu functionality.
 - [ ] Test options page drag-and-drop and separator selection thoroughly.

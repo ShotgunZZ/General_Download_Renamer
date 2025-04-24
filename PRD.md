@@ -48,11 +48,11 @@ This document outlines the requirements for a Chrome browser extension designed 
         *   Allow users to remove blocks from the target area.
         *   **Separator Selection:** Provide a dropdown menu allowing users to select a separator character (`_`, `.`, `-`, `*`, `x`, ` ` (space), `None` (no separator)) to be placed *between* each block in the sequence.
         *   The `{ext}` placeholder is *implicitly* appended to the end of the constructed pattern when saved; it is not displayed as a draggable block or affected by the separator.
-    *   Include a toggle switch to easily enable/disable the overall renaming functionality.
-    *   Provide a "Save Settings" button.
-    *   Persist the constructed pattern *string* (e.g., `{date}{originalFilename}{ext}`), the selected `separator` character, and the `enabled` status using `chrome.storage.local`.
+    *   Provide a "Save Settings" button which saves the pattern and separator settings.
+    *   Persist the constructed pattern *string* (e.g., `{date}{originalFilename}{ext}`) and the selected `separator` character using `chrome.storage.local`.
     *   Load the saved settings on page load and reconstruct the visual block arrangement and separator selection.
     *   Display a live preview of the filename format based on the current block sequence and selected separator.
+    *   **Note:** The enable/disable functionality is accessible *only* via the floating icon's popup, not in the options page.
 
 *   **Floating Draggable Icon:**
     *   Inject a persistent, draggable icon (`icons/icon48.png`) onto web pages.

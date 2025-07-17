@@ -1,6 +1,6 @@
 {
   "name": "General Download Renamer",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Automatically rename downloaded files based on user-defined patterns",
   "manifest_version": 3,
   "permissions": [
@@ -38,5 +38,8 @@
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
+  },
+  "privacy_practices": {
+    "tabs": "The tabs permission is used solely to enable communication between the extension popup and content scripts for showing/hiding the floating icon toggle. No tab data is collected, stored, or transmitted. This permission allows users to control the floating icon visibility across different tabs through the extension popup interface."
   }
 } 

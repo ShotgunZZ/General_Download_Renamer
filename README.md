@@ -20,7 +20,13 @@ Are you tired of your Downloads folder becoming a disorganized graveyard of file
   - `{date}` (YYYY-MM-DD)
   - `{time}` (HH-MM-SS)
   - `{timestamp}` (YYYY-MM-DD_HH-MM-SS)
+  - `{category}` **NEW!** Auto-detected file category (Documents, Images, etc.)
   - `{ext}` (the file extension)
+- **🆕 Custom Categories (v1.1):** Define your own file categorization rules!
+  - 11 built-in categories (Documents, Images, Videos, Audio, Code, etc.)
+  - Add, edit, and delete custom categories
+  - Real-time validation and auto-save
+  - Reset to defaults anytime
 - **Custom Separators:** Choose how filename parts are joined (_, -, ., space, none)
 - **Quick Toggle:** Enable/disable via a floating icon on any webpage
 - **Safe & Reliable:** Automatically sanitizes filenames and handles naming conflicts
@@ -30,17 +36,51 @@ Are you tired of your Downloads folder becoming a disorganized graveyard of file
 1. After installation, click the extension icon in your toolbar
 2. Visit the Options page to set up your custom renaming pattern
 3. Use the drag-and-drop interface to build your ideal filename format
-4. Toggle the extension on/off using the floating icon on any webpage(You might need to reload for tabs opened before extension installation)
-5. Download files as usual - they'll be automatically renamed based on your pattern!
+4. **NEW in v1.1:** Customize file categories in the "File Categories" section
+   - Edit existing categories or add your own
+   - Use the `{category}` placeholder in your patterns
+   - Example: `{category}/{originalFilename}` → `Documents/report.pdf`
+5. Toggle the extension on/off using the floating icon on any webpage
+6. Download files as usual - they'll be automatically renamed and categorized!
+
+### 📁 Category Examples
+- **Pattern:** `{category}_{date}_{originalFilename}`
+- **Results:** 
+  - `Documents_2024-01-15_quarterly-report.pdf`
+  - `Images_2024-01-15_vacation-photo.jpg`
+  - `Videos_2024-01-15_tutorial.mp4`
+
+## 🆕 What's New in v1.1
+
+### 🎆 Major New Features
+- **Custom Categories System:** Full control over file categorization
+- **New `{category}` Placeholder:** Automatically categorize downloads
+- **11 Built-in Categories:** Documents, Images, Videos, Audio, Code, and more
+- **Category Management UI:** Add, edit, delete categories with real-time validation
+- **Reset to Defaults:** Easily restore original categories
+
+### 🔄 Upgrade Notes
+**Upgrading from v1.0 to v1.1:**
+- ✅ **Automatic:** Your existing patterns and settings are preserved
+- ✅ **New Feature:** The `{category}` placeholder is now available in the pattern builder
+- ✅ **Enhanced:** 11 comprehensive default categories are automatically added
+- ✅ **Backward Compatible:** All v1.0 functionality remains unchanged
+
+**First Time Using Categories?**
+1. Go to Options → "File Categories" section
+2. See the 11 default categories (Documents, Images, etc.)
+3. Add `{category}` to your renaming pattern
+4. Customize categories as needed!
 
 ## 🔮 Future Plans
 
 Future versions may include:
 - AI-powered filename suggestions
 - Natural language rule creation
-- Smart download categorization
+- Advanced category rules (file size, source domain)
 - Duplicate detection
 - Conditional renaming rules
+- Category-based folder organization
 
 ## ⚠️ Known Issues
 

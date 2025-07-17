@@ -19,17 +19,48 @@ import {
 const DEFAULT_PATTERN = '{date}{originalFilename}{ext}';
 const DEFAULT_SEPARATOR = '_';
 
+// Default category rules (will be used on first install)
+const DEFAULT_CATEGORY_RULES = [
+  { name: 'Documents', extensions: 'pdf,doc,docx,odt,rtf,txt,md' },
+  { name: 'Spreadsheets', extensions: 'xls,xlsx,csv,ods,xml' },
+  { name: 'Presentations', extensions: 'ppt,pptx,odp' },
+  { name: 'Images', extensions: 'jpg,jpeg,png,gif,bmp,svg,webp,heic,heif' },
+  { name: 'Design & RAW', extensions: 'psd,ai,eps,indd,sketch,fig,cr2,nef,arw,dng' },
+  { name: 'Audio', extensions: 'mp3,wav,aac,flac,m4a,ogg' },
+  { name: 'Videos', extensions: 'mp4,mov,avi,mkv,wmv,flv,webm' },
+  { name: 'Archives', extensions: 'zip,rar,7z,tar,gz,bz2' },
+  { name: 'Code', extensions: 'html,css,js,json,py,java,cpp,sh,ps1' },
+  { name: 'Installers', extensions: 'exe,dmg,pkg,msi,deb,app' },
+  { name: 'Fonts', extensions: 'ttf,otf,woff,woff2' }
+];
+
 // Track the current state of the extension
 let isEnabled = true;
 let userPattern = DEFAULT_PATTERN;
 let userSeparator = DEFAULT_SEPARATOR;
+let categoryRules = []; // Will be loaded from storage
 
 // Initialize extension state from storage
-chrome.storage.local.get(['enabled', 'pattern', 'separator'], (result) => {
+chrome.storage.local.get(['enabled', 'pattern', 'separator', 'categoryRules'], (result) => {
   isEnabled = result.enabled !== undefined ? result.enabled : true;
   userPattern = result.pattern || DEFAULT_PATTERN;
   userSeparator = result.separator !== undefined ? result.separator : DEFAULT_SEPARATOR;
-  console.log('Extension initialized:', { isEnabled, userPattern, userSeparator });
+  
+  // Load category rules (use defaults if none saved yet)
+  if (result.categoryRules) {
+    categoryRules = result.categoryRules;
+  } else {
+    // First time setup - save default rules to storage
+    categoryRules = [...DEFAULT_CATEGORY_RULES];
+    chrome.storage.local.set({ categoryRules: categoryRules });
+  }
+  
+  console.log('Extension initialized:', { 
+    isEnabled, 
+    userPattern, 
+    userSeparator, 
+    categoryRulesCount: categoryRules.length 
+  });
 });
 
 // Listen for storage changes to update settings dynamically
@@ -47,6 +78,11 @@ chrome.storage.onChanged.addListener((changes) => {
   if (changes.separator !== undefined) {
     userSeparator = changes.separator.newValue;
     console.log('Separator changed:', userSeparator);
+  }
+  
+  if (changes.categoryRules !== undefined) {
+    categoryRules = changes.categoryRules.newValue;
+    console.log('Category rules updated:', categoryRules.length, 'rules');
   }
 });
 
@@ -76,9 +112,9 @@ function processDownload(downloadItem, suggest) {
     const time = getFormattedTime();
     const timestamp = getFormattedTimestamp();
     
-    // Determine file category (using default rules for now)
-    const category = getCategoryForFile(originalFilename);
-    console.log(`File category determined: ${originalFilename} -> ${category}`);
+    // Determine file category using custom rules
+    const category = getCategoryForFile(originalFilename, categoryRules);
+    console.log(`File category determined: ${originalFilename} -> ${category} (using ${categoryRules.length} custom rules)`);
     
     // Create placeholder values object
     const placeholders = {

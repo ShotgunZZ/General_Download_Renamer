@@ -13,6 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const placeholderDescriptionsList = document.querySelector('#placeholder-descriptions ul');
   const separatorSelect = document.getElementById('separator-select');
 
+  // Categories DOM elements
+  const categoryRulesContainer = document.getElementById('category-rules-container');
+  const addCategoryBtn = document.getElementById('add-category-btn');
+
   // --- Constants ---
   const DEFAULT_PATTERN = '{date}{originalFilename}{ext}';
   const DEFAULT_SEPARATOR = '_';
@@ -307,6 +311,164 @@ document.addEventListener('DOMContentLoaded', () => {
       ensureRemoveButtons();
   }
 
+  // --- Category Management Functions ---
+
+  /**
+   * Creates a DOM element for a single category rule
+   * @param {Object} rule - The rule object with name and extensions
+   * @param {number} index - The index for unique IDs
+   */
+  function createCategoryRuleElement(rule, index) {
+    const ruleDiv = document.createElement('div');
+    ruleDiv.className = 'category-rule';
+    ruleDiv.dataset.index = index;
+
+    // Category name input
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.className = 'category-name-input';
+    nameInput.placeholder = 'Category Name (e.g., Documents)';
+    nameInput.value = rule.name || '';
+    nameInput.addEventListener('input', () => {
+      validateAndSaveCategoryRules(nameInput);
+    });
+
+    // Extensions input
+    const extensionsInput = document.createElement('input');
+    extensionsInput.type = 'text';
+    extensionsInput.className = 'category-extensions-input';
+    extensionsInput.placeholder = 'Extensions (e.g., pdf, doc, docx)';
+    extensionsInput.value = rule.extensions || '';
+    extensionsInput.addEventListener('input', () => {
+      validateAndSaveCategoryRules(extensionsInput);
+    });
+
+    // Delete button
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-category-btn';
+    deleteBtn.innerHTML = '&times;';
+    deleteBtn.title = 'Delete this category';
+    deleteBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to delete this category?')) {
+        ruleDiv.remove();
+        saveCategoryRules();
+      }
+    });
+
+    ruleDiv.appendChild(nameInput);
+    ruleDiv.appendChild(extensionsInput);
+    ruleDiv.appendChild(deleteBtn);
+
+    return ruleDiv;
+  }
+
+  /**
+   * Loads and displays all category rules from storage
+   */
+  function loadCategoryRules() {
+    chrome.storage.local.get(['categoryRules'], (result) => {
+      const rules = result.categoryRules || [];
+      categoryRulesContainer.innerHTML = ''; // Clear existing
+      
+      rules.forEach((rule, index) => {
+        const ruleElement = createCategoryRuleElement(rule, index);
+        categoryRulesContainer.appendChild(ruleElement);
+      });
+    });
+  }
+
+  /**
+   * Validates input and provides visual feedback
+   * @param {HTMLElement} inputElement - The input element that changed
+   */
+  function validateAndSaveCategoryRules(inputElement) {
+    // Remove any existing error styling
+    inputElement.classList.remove('error');
+    
+    // Validate and save
+    const isValid = validateCategoryInput(inputElement);
+    if (!isValid) {
+      inputElement.classList.add('error');
+      // Don't save invalid data, but don't prevent typing
+      return;
+    }
+    
+    // Save if valid
+    saveCategoryRules();
+  }
+
+  /**
+   * Validates a category input field
+   * @param {HTMLElement} inputElement - The input to validate
+   * @returns {boolean} Whether the input is valid
+   */
+  function validateCategoryInput(inputElement) {
+    const value = inputElement.value.trim();
+    
+    if (inputElement.classList.contains('category-name-input')) {
+      // Category name validation
+      if (value.length === 0) return true; // Allow empty while typing
+      if (value.length < 2) return false; // Too short
+      if (value.length > 50) return false; // Too long
+      
+      // Check for duplicate names
+      const allNameInputs = categoryRulesContainer.querySelectorAll('.category-name-input');
+      const duplicateCount = Array.from(allNameInputs).filter(input => 
+        input !== inputElement && input.value.trim().toLowerCase() === value.toLowerCase()
+      ).length;
+      
+      return duplicateCount === 0;
+    } else if (inputElement.classList.contains('category-extensions-input')) {
+      // Extensions validation
+      if (value.length === 0) return true; // Allow empty while typing
+      
+      // Check format: comma-separated, no spaces around commas, no dots
+      const extensionsRegex = /^[a-zA-Z0-9]+(,[a-zA-Z0-9]+)*$/;
+      return extensionsRegex.test(value);
+    }
+    
+    return true;
+  }
+
+  /**
+   * Saves current category rules to storage
+   */
+  function saveCategoryRules() {
+    const rules = [];
+    const ruleElements = categoryRulesContainer.querySelectorAll('.category-rule');
+    
+    ruleElements.forEach(ruleEl => {
+      const nameInput = ruleEl.querySelector('.category-name-input');
+      const extensionsInput = ruleEl.querySelector('.category-extensions-input');
+      
+      const name = nameInput.value.trim();
+      const extensions = extensionsInput.value.trim();
+      
+      // Only save rules that have both name and extensions
+      if (name && extensions) {
+        rules.push({ name, extensions });
+      }
+    });
+    
+    chrome.storage.local.set({ categoryRules: rules }, () => {
+      console.log('Category rules saved:', rules.length, 'rules');
+    });
+  }
+
+  /**
+   * Adds a new empty category rule
+   */
+  function addNewCategory() {
+    const newRule = { name: '', extensions: '' };
+    const index = categoryRulesContainer.children.length;
+    const ruleElement = createCategoryRuleElement(newRule, index);
+    categoryRulesContainer.appendChild(ruleElement);
+    
+    // Focus on the name input for immediate editing
+    const nameInput = ruleElement.querySelector('.category-name-input');
+    nameInput.focus();
+  }
+
   // --- Initialization ---
   populateAvailableBlocks();
   populateDescriptions(); // Populate the descriptions area
@@ -320,5 +482,13 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Add change listener to the separator dropdown
   separatorSelect.addEventListener('change', updatePreview);
+  
+  // Initialize categories section
+  loadCategoryRules();
+  
+  // Add event listener for adding new categories
+  if (addCategoryBtn) {
+    addCategoryBtn.addEventListener('click', addNewCategory);
+  }
   
 }); 

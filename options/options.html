@@ -59,6 +59,24 @@
       </div>
     </div>
     
+    <div class="option-group categories-section">
+      <h3>File Categories</h3>
+      <p class="description">
+        Customize how files are categorized. Edit any category name or extensions list below.
+        The <code>{category}</code> placeholder in your pattern will use these rules.
+      </p>
+      
+      <div id="category-rules-container">
+        <!-- Category rules will be dynamically loaded here -->
+      </div>
+      
+      <button id="add-category-btn" class="secondary-btn">+ Add New Category</button>
+      
+      <div class="category-info">
+        <small>Files that don't match any rule will be categorized as "unknown".</small>
+      </div>
+    </div>
+
     <div class="button-group">
       <button id="save-btn" class="primary-btn">Save Settings</button>
       <span id="status-message"></span>

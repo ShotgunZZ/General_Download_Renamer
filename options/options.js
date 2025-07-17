@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Categories DOM elements
   const categoryRulesContainer = document.getElementById('category-rules-container');
   const addCategoryBtn = document.getElementById('add-category-btn');
+  const resetCategoriesBtn = document.getElementById('reset-categories-btn');
 
   // --- Constants ---
   const DEFAULT_PATTERN = '{date}{originalFilename}{ext}';
@@ -469,6 +470,35 @@ document.addEventListener('DOMContentLoaded', () => {
     nameInput.focus();
   }
 
+  /**
+   * Resets categories to default preset rules
+   */
+  function resetToDefaultCategories() {
+    if (confirm('Are you sure you want to reset all categories to defaults? This will remove all your custom categories.')) {
+      // Get default rules from background script constants
+      const defaultRules = [
+        { name: 'Documents', extensions: 'pdf,doc,docx,odt,rtf,txt,md' },
+        { name: 'Spreadsheets', extensions: 'xls,xlsx,csv,ods,xml' },
+        { name: 'Presentations', extensions: 'ppt,pptx,odp' },
+        { name: 'Images', extensions: 'jpg,jpeg,png,gif,bmp,svg,webp,heic,heif' },
+        { name: 'Design & RAW', extensions: 'psd,ai,eps,indd,sketch,fig,cr2,nef,arw,dng' },
+        { name: 'Audio', extensions: 'mp3,wav,aac,flac,m4a,ogg' },
+        { name: 'Videos', extensions: 'mp4,mov,avi,mkv,wmv,flv,webm' },
+        { name: 'Archives', extensions: 'zip,rar,7z,tar,gz,bz2' },
+        { name: 'Code', extensions: 'html,css,js,json,py,java,cpp,sh,ps1' },
+        { name: 'Installers', extensions: 'exe,dmg,pkg,msi,deb,app' },
+        { name: 'Fonts', extensions: 'ttf,otf,woff,woff2' }
+      ];
+      
+      // Save defaults to storage
+      chrome.storage.local.set({ categoryRules: defaultRules }, () => {
+        // Reload the UI to show defaults
+        loadCategoryRules();
+        console.log('Categories reset to defaults');
+      });
+    }
+  }
+
   // --- Initialization ---
   populateAvailableBlocks();
   populateDescriptions(); // Populate the descriptions area
@@ -489,6 +519,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Add event listener for adding new categories
   if (addCategoryBtn) {
     addCategoryBtn.addEventListener('click', addNewCategory);
+  }
+  
+  // Add event listener for resetting categories
+  if (resetCategoriesBtn) {
+    resetCategoriesBtn.addEventListener('click', resetToDefaultCategories);
   }
   
 }); 

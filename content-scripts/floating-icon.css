@@ -41,6 +41,40 @@
   transform: scale(1.1);
 }
 
+/* Hide button - only visible on icon hover */
+#dr-floating-icon .dr-hide-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #f44336;
+  color: white;
+  border: 2px solid white;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+  z-index: 1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+#dr-floating-icon:hover .dr-hide-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+#dr-floating-icon .dr-hide-btn:hover {
+  background-color: #d32f2f;
+  transform: scale(1.1);
+}
+
 #dr-floating-icon-img {
   width: 75%;
   height: 75%;

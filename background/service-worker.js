@@ -11,6 +11,7 @@ import {
   getFormattedTime,
   getFormattedTimestamp,
   splitFilename,
+  getCategoryForFile,
   processPattern
 } from '../utils/filenameUtils.js';
 
@@ -75,6 +76,10 @@ function processDownload(downloadItem, suggest) {
     const time = getFormattedTime();
     const timestamp = getFormattedTimestamp();
     
+    // Determine file category (using default rules for now)
+    const category = getCategoryForFile(originalFilename);
+    console.log(`File category determined: ${originalFilename} -> ${category}`);
+    
     // Create placeholder values object
     const placeholders = {
       domain: domain,
@@ -82,6 +87,7 @@ function processDownload(downloadItem, suggest) {
       date: date,
       time: time,
       originalFilename: nameWithoutExt,
+      category: category,
       ext: ext
     };
     
@@ -101,6 +107,11 @@ function processDownload(downloadItem, suggest) {
     suggest({ filename: downloadItem.filename });
   }
 }
+
+// Handle toolbar icon click - open options page
+chrome.action.onClicked.addListener((tab) => {
+  chrome.runtime.openOptionsPage();
+});
 
 // Listen for extension install or update
 chrome.runtime.onInstalled.addListener((details) => {

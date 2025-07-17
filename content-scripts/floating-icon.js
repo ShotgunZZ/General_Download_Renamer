@@ -36,7 +36,16 @@
     }
     iconImage.alt = 'DR';
 
+    // Create hide button
+    const hideButton = document.createElement('button');
+    hideButton.id = 'dr-hide-button';
+    hideButton.className = 'dr-hide-btn';
+    hideButton.innerHTML = '×';
+    hideButton.title = 'Hide floating icon';
+    hideButton.setAttribute('aria-label', 'Hide floating icon');
+
     floatingIcon.appendChild(iconImage);
+    floatingIcon.appendChild(hideButton);
     document.body.appendChild(floatingIcon);
 
     updateIconAppearance();
@@ -261,6 +270,31 @@
   }
 
   /**
+   * Hides the floating icon with animation and saves state.
+   */
+  function hideFloatingIcon() {
+    if (!floatingIcon) return;
+    
+    // Hide popup first if visible
+    hidePopup();
+    
+    // Animate out
+    floatingIcon.style.transform = 'scale(0)';
+    floatingIcon.style.opacity = '0';
+    
+    // Remove from DOM after animation
+    setTimeout(() => {
+      if (floatingIcon && floatingIcon.parentNode) {
+        floatingIcon.parentNode.removeChild(floatingIcon);
+        floatingIcon = null;
+      }
+    }, 200);
+    
+    // Save hidden state (but don't persist across page loads as requested)
+    console.log('[DR Icon] Icon hidden by user');
+  }
+
+  /**
    * Sets up click handlers for the icon and document.
    */
   function setupClickHandlers() {
@@ -271,8 +305,21 @@
     floatingIcon.addEventListener('mousedown', () => { dragHappened = false; });
     floatingIcon.addEventListener('mousemove', () => { if(isDragging) dragHappened = true; });
 
-    // Left click
+    // Hide button click handler
+    const hideButton = floatingIcon.querySelector('#dr-hide-button');
+    if (hideButton) {
+      hideButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        hideFloatingIcon();
+      });
+    }
+
+    // Left click on main icon (but not hide button)
     floatingIcon.addEventListener('click', (e) => {
+      // Don't trigger if clicking hide button
+      if (e.target.id === 'dr-hide-button') return;
+      
       if (dragHappened) return; // Don't trigger click after drag
       e.stopPropagation();
       if (popupPanel && popupPanel.classList.contains('visible')) {
@@ -348,25 +395,58 @@
            .replace(/'/g, "&#039;");
    }
 
+  // --- Message Handling ---
+
+  /**
+   * Handles messages from popup/background scripts
+   */
+  function handleMessage(message, sender, sendResponse) {
+    if (message.action === 'showFloatingIcon') {
+      if (!floatingIcon) {
+        createIcon();
+        if (!popupPanel) createPopup();
+        loadInitialSettings();
+      }
+    } else if (message.action === 'hideFloatingIcon') {
+      hideFloatingIcon();
+    }
+  }
+
   // --- Initialization ---
 
+  /**
+   * Initializes the floating icon and popup.
+   */
   function initialize() {
     // Avoid running multiple times
     if (document.getElementById(ICON_ID)) {
-        console.log('[DR Icon] Already initialized.');
-        return;
+      console.log('[DR Icon] Already initialized.');
+      return;
     }
+    
     console.log('[DR Icon] Initializing...');
-    createIcon();
-    createPopup();
-    loadInitialSettings();
-    // Listen for setting changes from other parts of the extension
+    
+    // Check if floating icon should be shown (default: true)
+    chrome.storage.local.get(['showFloatingIcon'], (result) => {
+      const showFloatingIcon = result.showFloatingIcon !== undefined ? result.showFloatingIcon : true;
+      
+      if (showFloatingIcon) {
+        createIcon();
+        createPopup();
+        loadInitialSettings();
+      }
+    });
+    
+    // Listen for storage changes
     chrome.storage.onChanged.addListener(handleStorageChange);
+    
+    // Listen for messages from popup
+    chrome.runtime.onMessage.addListener(handleMessage);
   }
 
   // Run initialization
   // Use a timeout to avoid potential race conditions on complex pages
   // or conflicts with other scripts during initial load.
-  setTimeout(initialize, 500); 
+  setTimeout(initialize, 500);
 
 })(); // IIFE to avoid polluting global scope 

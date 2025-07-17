@@ -22,7 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     'timestamp': 'Full date and time (YYYYMMDD-HHMMSS)',
     'date': 'Date only (YYYYMMDD)',
     'time': 'Time only (HHMMSS)',
-    'originalFilename': 'The original filename without extension'
+    'originalFilename': 'The original filename without extension',
+    'category': 'Auto-detected file category (Documents, Images, etc.)'
   };
   const PLACEHOLDERS = Object.keys(PLACEHOLDERS_INFO);
   let currentlyDraggedItem = null;

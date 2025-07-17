@@ -123,6 +123,62 @@ function processPattern(pattern, values, separator) {
   return joinedString + extension;
 }
 
+/**
+ * Default comprehensive category rules for file types
+ */
+const DEFAULT_CATEGORY_RULES = [
+  { name: 'Documents', extensions: 'pdf,doc,docx,odt,rtf,txt,md' },
+  { name: 'Spreadsheets', extensions: 'xls,xlsx,csv,ods,xml' },
+  { name: 'Presentations', extensions: 'ppt,pptx,odp' },
+  { name: 'Images', extensions: 'jpg,jpeg,png,gif,bmp,svg,webp,heic,heif' },
+  { name: 'Design & RAW', extensions: 'psd,ai,eps,indd,sketch,fig,cr2,nef,arw,dng' },
+  { name: 'Audio', extensions: 'mp3,wav,aac,flac,m4a,ogg' },
+  { name: 'Videos', extensions: 'mp4,mov,avi,mkv,wmv,flv,webm' },
+  { name: 'Archives', extensions: 'zip,rar,7z,tar,gz,bz2' },
+  { name: 'Code', extensions: 'html,css,js,json,py,java,cpp,sh,ps1' },
+  { name: 'Installers', extensions: 'exe,dmg,pkg,msi,deb,app' },
+  { name: 'Fonts', extensions: 'ttf,otf,woff,woff2' }
+];
+
+/**
+ * Determines the category for a filename based on extension rules
+ * @param {string} filename - The full filename (e.g., 'document.pdf')
+ * @param {Array<object>} customRules - Optional custom category rules from user settings
+ * @returns {string} The determined category name, or 'unknown' if no match
+ */
+function getCategoryForFile(filename, customRules = null) {
+  const fallbackCategory = 'unknown';
+  
+  if (!filename) {
+    return fallbackCategory;
+  }
+
+  // Extract the file extension
+  const { ext } = splitFilename(filename);
+  const extension = ext.startsWith('.') ? ext.substring(1).toLowerCase() : ext.toLowerCase();
+
+  if (!extension) {
+    return fallbackCategory;
+  }
+
+  // Use custom rules if provided, otherwise use defaults
+  const rules = (customRules && Array.isArray(customRules) && customRules.length > 0) 
+    ? customRules 
+    : DEFAULT_CATEGORY_RULES;
+
+  // Find matching category
+  for (const rule of rules) {
+    if (rule.name && rule.extensions) {
+      const extensions = rule.extensions.split(',').map(e => e.trim().toLowerCase());
+      if (extensions.includes(extension)) {
+        return rule.name;
+      }
+    }
+  }
+
+  return fallbackCategory;
+}
+
 // Export functions for use in service-worker.js
 export {
   sanitizeFilename,
@@ -131,5 +187,6 @@ export {
   getFormattedTime,
   getFormattedTimestamp,
   splitFilename,
+  getCategoryForFile,
   processPattern
 }; 

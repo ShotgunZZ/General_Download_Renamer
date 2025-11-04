@@ -271,17 +271,18 @@
 
   /**
    * Hides the floating icon with animation and saves state.
+   * Hides the icon in all open tabs and prevents it from appearing in new tabs.
    */
   function hideFloatingIcon() {
     if (!floatingIcon) return;
-    
+
     // Hide popup first if visible
     hidePopup();
-    
+
     // Animate out
     floatingIcon.style.transform = 'scale(0)';
     floatingIcon.style.opacity = '0';
-    
+
     // Remove from DOM after animation
     setTimeout(() => {
       if (floatingIcon && floatingIcon.parentNode) {
@@ -289,9 +290,12 @@
         floatingIcon = null;
       }
     }, 200);
-    
-    // Save hidden state (but don't persist across page loads as requested)
-    console.log('[DR Icon] Icon hidden by user');
+
+    // Save hidden state to storage (persists across page loads and new tabs)
+    // The storage change will automatically propagate to all tabs via their storage listeners
+    chrome.storage.local.set({ showFloatingIcon: false }, () => {
+      console.log('[DR Icon] Icon hidden by user globally');
+    });
   }
 
   /**
@@ -371,12 +375,34 @@
         currentSettings.pattern = changes.pattern.newValue;
         // No visual change needed on icon for pattern change
       }
+      // Handle showFloatingIcon changes for real-time sync across tabs
+      if (changes.showFloatingIcon !== undefined) {
+        const shouldShow = changes.showFloatingIcon.newValue;
+        if (shouldShow && !floatingIcon) {
+          // Show icon when toggled on from options page
+          createIcon();
+          if (!popupPanel) createPopup();
+          loadInitialSettings();
+        } else if (!shouldShow && floatingIcon) {
+          // Hide icon when toggled off from options page or hide button
+          hidePopup();
+          floatingIcon.style.transform = 'scale(0)';
+          floatingIcon.style.opacity = '0';
+          setTimeout(() => {
+            if (floatingIcon && floatingIcon.parentNode) {
+              floatingIcon.parentNode.removeChild(floatingIcon);
+              floatingIcon = null;
+            }
+          }, 200);
+        }
+        return; // Don't need to update icon appearance for visibility changes
+      }
       if (changed) {
         updateIconAppearance();
         // If popup is visible, update its content
         if (popupPanel && popupPanel.classList.contains('visible')) {
            // Rebuild content to reflect change
-           showPopup(); 
+           showPopup();
         }
       }
     }

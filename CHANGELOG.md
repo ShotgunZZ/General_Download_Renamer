@@ -2,7 +2,26 @@
 
 All notable changes to General Download Renamer will be documented in this file.
 
-## [1.1.0] - 2025-01-17
+## [1.1.1] - 2025-11-04
+
+### 🐛 Bug Fixes
+- **Fixed floating icon synchronization**: Floating icon now updates immediately across all tabs without requiring page reload
+- **Fixed hide button behavior**: Clicking the × hide button now properly syncs with options page toggle
+- **Removed invalid manifest key**: Removed `privacy_practices` field that caused manifest warnings
+
+### ✨ Enhancements
+- **Options page toggle**: Added "Show Floating Icon" toggle in options page header for easy visibility control
+- **Real-time synchronization**: All floating icon visibility changes now sync instantly across all tabs and windows
+- **Improved storage listeners**: Enhanced `chrome.storage.onChanged` handling for better cross-component communication
+- **Simplified codebase**: Removed redundant tab messaging code, now relies entirely on Chrome's storage propagation
+
+### 🔧 Technical Improvements
+- Enhanced `handleStorageChange()` in content script to listen for `showFloatingIcon` changes
+- Added `handleOptionsStorageChange()` in options page for bidirectional sync
+- Removed invalid `chrome.tabs` API usage from content scripts
+- Streamlined toggle handler to use storage-only synchronization
+
+## [1.1.0] - 2025-07-17
 
 ### 🎆 Major New Features
 - **Custom Categories System**: Complete file categorization management

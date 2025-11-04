@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const placeholderText = patternSequence.querySelector('.placeholder-text');
   const placeholderDescriptionsList = document.querySelector('#placeholder-descriptions ul');
   const separatorSelect = document.getElementById('separator-select');
+  const floatingIconToggle = document.getElementById('floating-icon-toggle');
 
   // Categories DOM elements
   const categoryRulesContainer = document.getElementById('category-rules-container');
@@ -489,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'Installers', extensions: 'exe,dmg,pkg,msi,deb,app' },
         { name: 'Fonts', extensions: 'ttf,otf,woff,woff2' }
       ];
-      
+
       // Save defaults to storage
       chrome.storage.local.set({ categoryRules: defaultRules }, () => {
         // Reload the UI to show defaults
@@ -499,31 +500,76 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // --- Floating Icon Toggle Functions ---
+
+  /**
+   * Loads the floating icon toggle state from storage
+   */
+  function loadFloatingIconToggle() {
+    chrome.storage.local.get(['showFloatingIcon'], (result) => {
+      const showFloatingIcon = result.showFloatingIcon !== undefined ? result.showFloatingIcon : true;
+      floatingIconToggle.checked = showFloatingIcon;
+    });
+  }
+
+  /**
+   * Handles the floating icon toggle change
+   * Storage change will automatically propagate to all tabs via their storage listeners
+   */
+  function handleFloatingIconToggle() {
+    const showFloatingIcon = floatingIconToggle.checked;
+    chrome.storage.local.set({ showFloatingIcon: showFloatingIcon }, () => {
+      console.log('Floating icon visibility set to:', showFloatingIcon);
+    });
+  }
+
+  /**
+   * Handles storage changes from other sources (like the hide button in content scripts)
+   */
+  function handleOptionsStorageChange(changes, area) {
+    if (area === 'local' && changes.showFloatingIcon !== undefined) {
+      const newValue = changes.showFloatingIcon.newValue;
+      if (floatingIconToggle && floatingIconToggle.checked !== newValue) {
+        floatingIconToggle.checked = newValue;
+        console.log('Floating icon toggle updated from storage:', newValue);
+      }
+    }
+  }
+
   // --- Initialization ---
   populateAvailableBlocks();
   populateDescriptions(); // Populate the descriptions area
   loadSettings(); // Load saved settings and build initial sequence
   saveButton.addEventListener('click', saveSettings);
-  
+
   // Add drag listeners to the main drop zone
   patternSequence.addEventListener('dragover', handleDragOver);
   patternSequence.addEventListener('dragleave', handleDragLeave);
   patternSequence.addEventListener('drop', handleDropOnSequence);
-  
+
   // Add change listener to the separator dropdown
   separatorSelect.addEventListener('change', updatePreview);
-  
+
   // Initialize categories section
   loadCategoryRules();
-  
+
   // Add event listener for adding new categories
   if (addCategoryBtn) {
     addCategoryBtn.addEventListener('click', addNewCategory);
   }
-  
+
   // Add event listener for resetting categories
   if (resetCategoriesBtn) {
     resetCategoriesBtn.addEventListener('click', resetToDefaultCategories);
   }
-  
+
+  // Initialize floating icon toggle
+  loadFloatingIconToggle();
+  if (floatingIconToggle) {
+    floatingIconToggle.addEventListener('change', handleFloatingIconToggle);
+  }
+
+  // Listen for storage changes to keep toggle in sync with hide button clicks
+  chrome.storage.onChanged.addListener(handleOptionsStorageChange);
+
 }); 

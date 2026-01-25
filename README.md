@@ -24,8 +24,8 @@ Are you tired of your Downloads folder becoming a disorganized graveyard of file
   - `{timestamp}` (YYYY-MM-DD_HH-MM-SS)
   - `{category}` **NEW!** Auto-detected file category (Documents, Images, etc.)
   - `{ext}` (the file extension)
-- **Custom Placeholders:** Derive new placeholders from existing ones using keywords gating and a regex with a single capture group; if matched, the value is `match[1]`.
-- **🆕 Custom Categories (v1.1):** Define your own file categorization rules!
+- **🆕 Custom Placeholders (v1.2):** Derive new placeholders from existing ones using keywords gating and a regex with a single capture group; if matched, the value is `match[1]`.
+- **Custom Categories:** Define your own file categorization rules!
   - 11 built-in categories (Documents, Images, Videos, Audio, Code, etc.)
   - Add, edit, and delete custom categories
   - Real-time validation and auto-save
@@ -40,13 +40,16 @@ Are you tired of your Downloads folder becoming a disorganized graveyard of file
 1. After installation, click the extension icon in your toolbar
 2. Visit the Options page to set up your custom renaming pattern
 3. Use the drag-and-drop interface to build your ideal filename format
-4. **NEW in v1.1:** Customize file categories in the "File Categories" section
+4. **Optional:** Customize file categories in the "File Categories" section
    - Edit existing categories or add your own
    - Use the `{category}` placeholder in your patterns
    - Example: `{category}/{originalFilename}` → `Documents/report.pdf`
-5. Toggle the extension on/off using the floating icon on any webpage
-6. Download files as usual - they'll be automatically renamed and categorized!
-7. Use the floating panel to preview your current pattern and a partially resolved preview (placeholders that can be known from the current page are shown, others remain as `{placeholder}`).
+5. **NEW in v1.2:** Create custom placeholders to extract data from URLs or filenames
+   - Perfect for Jira IDs, product codes, project names, etc.
+   - See "Custom Placeholders" section below for examples
+6. Toggle the extension on/off using the floating icon on any webpage
+7. Download files as usual - they'll be automatically renamed and categorized!
+8. Use the floating panel to preview your current pattern and see resolved values in real-time
 
 ### 🧩 Custom Placeholders
 - Define on the Options page in the "Custom Placeholders" section:
@@ -72,34 +75,37 @@ Are you tired of your Downloads folder becoming a disorganized graveyard of file
   - `Images_2024-01-15_vacation-photo.jpg`
   - `Videos_2024-01-15_tutorial.mp4`
 
-## 🆕 What's New in v1.1
+## 🆕 What's New in v1.2
 
 ### 🎆 Major New Features
-- **Custom Categories System:** Full control over file categorization
-- **New `{category}` Placeholder:** Automatically categorize downloads
-- **11 Built-in Categories:** Documents, Images, Videos, Audio, Code, and more
-- **Category Management UI:** Add, edit, delete categories with real-time validation
-- **Reset to Defaults:** Easily restore original categories
+- **Custom Placeholders:** Create your own placeholders using regex patterns!
+  - Extract data from URLs, filenames, or any base placeholder
+  - Use regex with single capture group to extract specific patterns
+  - Optional keyword gating to filter when extraction runs
+  - Perfect for Jira IDs, product codes, project names, and more
+- **New URL Placeholders:**
+  - `{sourceUrl}` - Full download source URL
+  - `{tabUrl}` - Referrer/tab URL for context-aware naming
+- **Enhanced Preview Panel:**
+  - See both raw pattern and resolved preview in real-time
+  - Preview shows immediately available values (domain, date, time, tabUrl, etc.)
+  - Download-time placeholders display as `{placeholder}` until file is downloaded
+- **Smart Filename Construction:**
+  - Empty placeholders are automatically skipped (no extra separators)
+  - Cleaner, more professional filenames
 
 ### 🔄 Upgrade Notes
-**Upgrading from v1.0 to v1.1:**
-- ✅ **Automatic:** Your existing patterns and settings are preserved
-- ✅ **New Feature:** The `{category}` placeholder is now available in the pattern builder
-- ✅ **Enhanced:** 11 comprehensive default categories are automatically added
-- ✅ **Backward Compatible:** All v1.0 functionality remains unchanged
+**Upgrading from v1.1 to v1.2:**
+- ✅ **Automatic:** Your existing patterns, categories, and settings are preserved
+- ✅ **New Features:** Custom placeholders section now available in Options
+- ✅ **Enhanced:** Floating preview now shows resolved values in real-time
+- ✅ **Backward Compatible:** All v1.1 and v1.0 functionality remains unchanged
 
-**First Time Using Categories?**
-1. Go to Options → "File Categories" section
-2. See the 11 default categories (Documents, Images, etc.)
-3. Add `{category}` to your renaming pattern
-4. Customize categories as needed!
-
-## 🆕 Additional Enhancements
-
-- New placeholders: `{sourceUrl}`, `{tabUrl}`
-- Custom placeholders with keywords gating + single capture regex
-- Floating panel shows both Current and Preview patterns with immediate partial resolution
-- Empty placeholders are skipped during join (no extra separators); `{ext}` is always appended
+**First Time Using Custom Placeholders?**
+1. Go to Options → "Custom Placeholders" section
+2. Click "+ Add Custom Placeholder"
+3. Define your placeholder (name, base, regex, keywords)
+4. Use it in your pattern like any built-in placeholder!
 
 ## 🔮 Future Plans
 

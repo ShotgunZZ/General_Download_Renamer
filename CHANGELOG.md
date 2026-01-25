@@ -2,6 +2,46 @@
 
 All notable changes to General Download Renamer will be documented in this file.
 
+## [1.2.0] - 2026-01-25
+
+### 🎆 Major New Features
+- **Custom Placeholders**: Create user-defined placeholders derived from existing ones using regex and keyword gating
+  - Define placeholders with regex patterns containing one capture group
+  - Optional keyword filtering to gate when regex runs
+  - Supports deriving from any base placeholder (domain, tabUrl, sourceUrl, etc.)
+- **New URL Placeholders**: Access to download and referrer URLs
+  - `{sourceUrl}`: Full download source URL
+  - `{tabUrl}`: Referrer/tab URL when available
+- **Enhanced Floating Preview**: Shows both current pattern and preview with resolved values
+  - Current pattern displays raw placeholder format
+  - Preview pattern shows immediately resolvable values (domain, date, time, timestamp, tabUrl)
+  - Download-time placeholders remain as `{placeholder}` in preview
+
+### ✨ Enhancements
+- **Smart Filename Joining**: Empty placeholders are skipped during filename construction to prevent extra separators
+- **Improved Popup Positioning**: Better floating icon popup placement with viewport boundaries
+- **Enhanced UI**: Wider, scrollable popup with better word wrapping (340px, max 90vw x 70vh)
+- **Custom Placeholders Management**: Full UI for adding, editing, and deleting custom placeholder rules
+- **Dynamic Placeholder Updates**: Available placeholders update automatically when custom placeholders are added
+
+### 🔧 Technical Improvements
+- Enhanced `processPattern()` to skip empty/null placeholder values
+- Custom placeholder processing in service worker with keyword gating logic
+- Preview resolution logic in floating icon for immediate feedback
+- Grid-based UI layout for custom placeholder rules (Name, Base, Regex, Keywords)
+- Improved drag/click handling in floating icon
+
+### 📖 Documentation
+- Added custom placeholders section to README with examples
+- Documented Jira ID extraction use case
+- Updated placeholder descriptions with new URL placeholders
+- Added notes on preview limitations
+
+### Example Use Cases
+- Extract Jira issue keys from URLs: `{jira_id}_{originalFilename}{ext}`
+- Use product IDs from download URLs in filenames
+- Extract project codes from tab URLs for automatic organization
+
 ## [1.1.1] - 2025-11-04
 
 ### 🐛 Bug Fixes

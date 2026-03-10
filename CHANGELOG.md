@@ -2,6 +2,25 @@
 
 All notable changes to General Download Renamer will be documented in this file.
 
+## [1.3.0] - 2026-03-10
+
+### 🎆 Major New Features
+- **Custom Placeholder Types**: Three types of custom placeholders now available:
+  - **Text**: Add static text like "Invoice" or "Report" to filenames
+  - **Counter**: Auto-incrementing numbers with zero-padding (e.g., 001, 002, 003)
+  - **Regex**: Extract data from URLs using regex patterns (existing behavior)
+
+### ✨ Enhancements
+- **Type-aware UI**: Custom placeholder form adapts fields based on selected type
+- **Counter reset**: Reset button to restart counter from its start value
+- **Name validation**: Prevents reserved names and invalid characters in placeholder names
+
+### 🐛 Bug Fixes
+- Fixed review feedback issues for custom placeholder type handling
+
+### 📖 Documentation
+- Added design spec and implementation plan for custom placeholder types
+
 ## [1.2.0] - 2026-01-25
 
 ### 🎆 Major New Features

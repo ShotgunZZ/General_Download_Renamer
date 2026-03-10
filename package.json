@@ -1,6 +1,6 @@
 {
   "name": "general-download-renamer",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Automatically rename downloaded files based on user-defined patterns",
   "dependencies": {
     "canvas": "^3.1.0"

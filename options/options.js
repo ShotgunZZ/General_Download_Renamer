@@ -43,6 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const addCustomPlaceholderBtn = document.getElementById('add-custom-placeholder-btn');
   let currentCustomPlaceholders = [];
 
+  // Reserved names that cannot be used for custom placeholders
+  const RESERVED_NAMES = ['domain', 'timestamp', 'date', 'time', 'originalFilename', 'category', 'sourceUrl', 'tabUrl', 'ext'];
+  const NAME_REGEX = /^[a-zA-Z0-9_]+$/;
+
   // --- Functions ---
 
   /**
@@ -131,7 +135,14 @@ document.addEventListener('DOMContentLoaded', () => {
       PLACEHOLDERS_INFO = { ...BUILTIN_PLACEHOLDERS_INFO };
       currentCustomPlaceholders.forEach(cp => {
         if (cp && cp.name) {
-          PLACEHOLDERS_INFO[cp.name] = `Custom derived from {${cp.base || 'unknown'}}`;
+          const type = cp.type || 'regex';
+          if (type === 'text') {
+            PLACEHOLDERS_INFO[cp.name] = `Static text: "${cp.value || ''}"`;
+          } else if (type === 'counter') {
+            PLACEHOLDERS_INFO[cp.name] = 'Auto-incrementing counter';
+          } else {
+            PLACEHOLDERS_INFO[cp.name] = `Custom derived from {${cp.base || 'unknown'}}`;
+          }
         }
       });
       PLACEHOLDERS = Object.keys(PLACEHOLDERS_INFO);
@@ -140,19 +151,39 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
-   * Creates a custom placeholder rule element in the UI
+   * Creates a custom placeholder rule element in the UI with type support.
+   * @param {Object} rule - The rule object
+   * @param {number} index - The index for tracking
+   * @returns {HTMLElement} The created row element
    */
   function createCustomPlaceholderElement(rule, index) {
+    const type = rule.type || 'regex';
     const div = document.createElement('div');
     div.className = 'custom-placeholder-rule';
     div.dataset.index = index;
+    div.dataset.type = type;
 
+    // Name input (all types)
     const nameInput = document.createElement('input');
     nameInput.type = 'text';
-    nameInput.placeholder = 'Name (e.g., productId)';
+    nameInput.className = 'cp-name-input';
+    nameInput.placeholder = 'Name (e.g., invoice)';
     nameInput.value = rule.name || '';
 
+    // Type dropdown (all types)
+    const typeSelect = document.createElement('select');
+    typeSelect.className = 'cp-type-select';
+    ['regex', 'text', 'counter'].forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t;
+      opt.textContent = t.charAt(0).toUpperCase() + t.slice(1);
+      typeSelect.appendChild(opt);
+    });
+    typeSelect.value = type;
+
+    // Regex fields
     const baseSelect = document.createElement('select');
+    baseSelect.className = 'cp-base-select';
     BUILTIN_PLACEHOLDERS.forEach(ph => {
       const opt = document.createElement('option');
       opt.value = ph;
@@ -163,31 +194,95 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const regexInput = document.createElement('input');
     regexInput.type = 'text';
+    regexInput.className = 'cp-regex-input';
     regexInput.placeholder = 'Regex with one capture group';
     regexInput.value = rule.regex || '';
 
     const keywordsInput = document.createElement('input');
     keywordsInput.type = 'text';
+    keywordsInput.className = 'cp-keywords-input';
     keywordsInput.placeholder = 'Keywords (comma-separated, optional)';
     keywordsInput.value = rule.keywords || '';
 
+    // Text fields
+    const valueInput = document.createElement('input');
+    valueInput.type = 'text';
+    valueInput.className = 'cp-value-input';
+    valueInput.placeholder = 'Static text value (e.g., Invoice)';
+    valueInput.value = rule.value || '';
+
+    // Counter fields
+    const startValueInput = document.createElement('input');
+    startValueInput.type = 'text';
+    startValueInput.className = 'cp-start-value';
+    startValueInput.placeholder = 'Start value (e.g., 001)';
+    startValueInput.value = rule.startValue || '001';
+
+    const resetBtn = document.createElement('button');
+    resetBtn.className = 'reset-counter-btn';
+    const currentVal = rule.currentValue !== undefined ? rule.currentValue : parseInt(rule.startValue || '1', 10);
+    resetBtn.textContent = `Reset (cur: ${currentVal})`;
+    resetBtn.addEventListener('click', () => {
+      if (!confirm('Reset counter to start value?')) return;
+      const sv = startValueInput.value.trim() || '001';
+      const parsed = parseInt(sv, 10);
+      if (isNaN(parsed) || parsed < 0) return;
+      resetBtn.textContent = `Reset (cur: ${parsed})`;
+      const counterName = nameInput.value.trim();
+      saveCustomPlaceholders(counterName);
+    });
+
+    // Delete button (all types)
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'delete-custom-placeholder-btn';
     deleteBtn.textContent = 'Delete';
 
-    function save() {
+    // --- Assemble the row ---
+    div.appendChild(nameInput);
+    div.appendChild(typeSelect);
+    div.appendChild(baseSelect);
+    div.appendChild(regexInput);
+    div.appendChild(keywordsInput);
+    div.appendChild(valueInput);
+    div.appendChild(startValueInput);
+    div.appendChild(resetBtn);
+    div.appendChild(deleteBtn);
+
+    // Apply field visibility for the current type
+    applyTypeVisibility(div, type);
+
+    // --- Event listeners ---
+    function onFieldChange() {
+      validateCustomPlaceholderName(nameInput);
+      const currentType = typeSelect.value;
+      if (currentType === 'counter') {
+        validateStartValue(startValueInput);
+      }
       saveCustomPlaceholders();
-      // Update lists for builder/descriptions when names change
       loadCustomPlaceholdersAndUpdateLists(() => {
         populateAvailableBlocks();
         populateDescriptions();
       });
     }
 
-    nameInput.addEventListener('input', save);
-    baseSelect.addEventListener('change', save);
-    regexInput.addEventListener('input', save);
-    keywordsInput.addEventListener('input', save);
+    typeSelect.addEventListener('change', () => {
+      const newType = typeSelect.value;
+      div.dataset.type = newType;
+      applyTypeVisibility(div, newType);
+      onFieldChange();
+    });
+
+    nameInput.addEventListener('input', onFieldChange);
+    baseSelect.addEventListener('change', onFieldChange);
+    regexInput.addEventListener('input', onFieldChange);
+    keywordsInput.addEventListener('input', onFieldChange);
+    valueInput.addEventListener('input', onFieldChange);
+    startValueInput.addEventListener('input', () => {
+      validateStartValue(startValueInput);
+      const counterName = nameInput.value.trim();
+      saveCustomPlaceholders(counterName);
+    });
+
     deleteBtn.addEventListener('click', () => {
       div.remove();
       saveCustomPlaceholders();
@@ -197,16 +292,97 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    div.appendChild(nameInput);
-    div.appendChild(baseSelect);
-    div.appendChild(regexInput);
-    div.appendChild(keywordsInput);
-    div.appendChild(deleteBtn);
     return div;
   }
 
   /**
-   * Loads and renders custom placeholders in the options UI
+   * Shows/hides fields in a custom placeholder row based on the selected type.
+   * @param {HTMLElement} row - The .custom-placeholder-rule element
+   * @param {string} type - 'regex', 'text', or 'counter'
+   */
+  function applyTypeVisibility(row, type) {
+    const fields = {
+      regex: ['cp-base-select', 'cp-regex-input', 'cp-keywords-input'],
+      text: ['cp-value-input'],
+      counter: ['cp-start-value', 'reset-counter-btn']
+    };
+
+    const allOptional = [
+      'cp-base-select', 'cp-regex-input', 'cp-keywords-input',
+      'cp-value-input', 'cp-start-value', 'reset-counter-btn'
+    ];
+
+    const visible = fields[type] || fields.regex;
+
+    allOptional.forEach(cls => {
+      const el = row.querySelector(`.${cls}`);
+      if (el) {
+        if (visible.includes(cls)) {
+          el.classList.remove('cp-field-hidden');
+        } else {
+          el.classList.add('cp-field-hidden');
+        }
+      }
+    });
+  }
+
+  /**
+   * Validates a custom placeholder name input.
+   * Checks: non-empty, valid characters, not reserved, unique.
+   * @param {HTMLInputElement} input - The name input element
+   * @returns {boolean} Whether the name is valid
+   */
+  function validateCustomPlaceholderName(input) {
+    const name = input.value.trim();
+    input.classList.remove('error');
+
+    if (!name) return true;
+
+    if (!NAME_REGEX.test(name)) {
+      input.classList.add('error');
+      return false;
+    }
+
+    if (RESERVED_NAMES.includes(name)) {
+      input.classList.add('error');
+      return false;
+    }
+
+    const allNameInputs = document.querySelectorAll('.custom-placeholder-rule .cp-name-input');
+    const duplicateCount = Array.from(allNameInputs).filter(
+      el => el !== input && el.value.trim() === name
+    ).length;
+
+    if (duplicateCount > 0) {
+      input.classList.add('error');
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Validates a counter start value input.
+   * @param {HTMLInputElement} input - The start value input element
+   * @returns {boolean} Whether the start value is valid
+   */
+  function validateStartValue(input) {
+    const val = input.value.trim();
+    input.classList.remove('error');
+
+    if (!val) return true;
+
+    if (!/^\d+$/.test(val)) {
+      input.classList.add('error');
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Loads and renders custom placeholders in the options UI.
+   * Handles all three types: regex, text, counter.
    */
   function loadCustomPlaceholderRules() {
     chrome.storage.local.get(['customPlaceholders'], (result) => {
@@ -220,35 +396,69 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
-   * Saves current custom placeholders to storage
+   * Saves current custom placeholders to storage.
+   * Reads fields by class name (not positional index) to support all types.
+   * @param {string|null} resetCounterName - If provided, reset currentValue for this specific counter
    */
-  function saveCustomPlaceholders() {
+  function saveCustomPlaceholders(resetCounterName = null) {
     const rules = [];
     const ruleElements = customPlaceholdersContainer.querySelectorAll('.custom-placeholder-rule');
+
     ruleElements.forEach(el => {
-      const inputs = el.querySelectorAll('input, select');
-      const name = inputs[0].value.trim();
-      const base = inputs[1].value;
-      const regex = inputs[2].value.trim();
-      const keywords = inputs[3].value.trim();
-      if (name && base && regex) {
-        rules.push({ name, base, regex, keywords });
+      const name = el.querySelector('.cp-name-input').value.trim();
+      const type = el.querySelector('.cp-type-select').value;
+
+      if (!name) return;
+      if (!NAME_REGEX.test(name) || RESERVED_NAMES.includes(name)) return;
+
+      if (type === 'text') {
+        const value = el.querySelector('.cp-value-input').value;
+        if (!value) return;
+        rules.push({ name, type, value });
+      } else if (type === 'counter') {
+        let startValueStr = el.querySelector('.cp-start-value').value.trim();
+        if (!startValueStr) startValueStr = '001';
+        if (!/^\d+$/.test(startValueStr)) return;
+
+        const padding = (startValueStr.length > 1 && startValueStr.startsWith('0'))
+          ? startValueStr.length : 0;
+        const parsedStart = parseInt(startValueStr, 10);
+
+        let currentValue = parsedStart;
+        if (resetCounterName !== name) {
+          const existing = currentCustomPlaceholders.find(
+            cp => cp.name === name && cp.type === 'counter'
+          );
+          if (existing && existing.currentValue !== undefined
+              && existing.startValue === startValueStr) {
+            currentValue = existing.currentValue;
+          }
+        }
+
+        rules.push({ name, type, startValue: startValueStr, padding, currentValue });
+      } else {
+        const base = el.querySelector('.cp-base-select').value;
+        const regex = el.querySelector('.cp-regex-input').value.trim();
+        const keywords = el.querySelector('.cp-keywords-input').value.trim();
+        if (!base || !regex) return;
+        rules.push({ name, type: 'regex', base, regex, keywords });
       }
     });
+
     chrome.storage.local.set({ customPlaceholders: rules }, () => {
-      // no-op
+      currentCustomPlaceholders = rules;
     });
   }
 
   /**
-   * Adds a new custom placeholder row
+   * Adds a new custom placeholder row, defaulting to regex type.
    */
   function addNewCustomPlaceholder() {
-    const rule = { name: '', base: BUILTIN_PLACEHOLDERS[0], regex: '', keywords: '' };
+    const rule = { name: '', type: 'regex', base: BUILTIN_PLACEHOLDERS[0], regex: '', keywords: '' };
     const idx = customPlaceholdersContainer.children.length;
     const el = createCustomPlaceholderElement(rule, idx);
     customPlaceholdersContainer.appendChild(el);
-    const nameInput = el.querySelector('input');
+    const nameInput = el.querySelector('.cp-name-input');
     if (nameInput) nameInput.focus();
   }
 

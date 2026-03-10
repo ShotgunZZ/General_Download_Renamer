@@ -543,4 +543,61 @@ code {
 .category-info small {
   color: #6c757d;
   font-size: 13px;
-} 
+}
+
+/* Custom Placeholder Type Dropdown */
+.custom-placeholder-rule select.cp-type-select {
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  background-color: #f9f9f9;
+  font-weight: 500;
+}
+
+/* Grid layouts per type */
+.custom-placeholder-rule[data-type="regex"] {
+  grid-template-columns: 1fr 0.7fr 1fr 1.5fr 1.5fr auto;
+}
+
+.custom-placeholder-rule[data-type="text"] {
+  grid-template-columns: 1fr 0.7fr 2fr auto;
+}
+
+.custom-placeholder-rule[data-type="counter"] {
+  grid-template-columns: 1fr 0.7fr 1fr auto auto;
+}
+
+/* Hide fields not relevant to current type */
+.custom-placeholder-rule .cp-field-hidden {
+  display: none;
+}
+
+/* Reset Counter Button */
+.reset-counter-btn {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.reset-counter-btn:hover {
+  background-color: #5a6268;
+}
+
+/* Name validation error */
+.custom-placeholder-rule input.cp-name-input.error {
+  border-color: #dc3545;
+  background-color: #fff5f5;
+}
+
+/* Start value validation error */
+.custom-placeholder-rule input.cp-start-value.error {
+  border-color: #dc3545;
+  background-color: #fff5f5;
+}

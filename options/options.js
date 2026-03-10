@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const resetBtn = document.createElement('button');
     resetBtn.className = 'reset-counter-btn';
-    const currentVal = rule.currentValue !== undefined ? rule.currentValue : parseInt(rule.startValue || '1', 10);
+    const currentVal = rule.currentValue !== undefined ? rule.currentValue : parseInt(rule.startValue || '001', 10);
     resetBtn.textContent = `Reset (cur: ${currentVal})`;
     resetBtn.addEventListener('click', () => {
       if (!confirm('Reset counter to start value?')) return;
@@ -281,6 +281,16 @@ document.addEventListener('DOMContentLoaded', () => {
       validateStartValue(startValueInput);
       const counterName = nameInput.value.trim();
       saveCustomPlaceholders(counterName);
+      // Update reset button label to reflect new start value
+      const sv = startValueInput.value.trim() || '001';
+      const parsed = parseInt(sv, 10);
+      if (!isNaN(parsed) && parsed >= 0) {
+        resetBtn.textContent = `Reset (cur: ${parsed})`;
+      }
+      loadCustomPlaceholdersAndUpdateLists(() => {
+        populateAvailableBlocks();
+        populateDescriptions();
+      });
     });
 
     deleteBtn.addEventListener('click', () => {

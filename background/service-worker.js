@@ -158,7 +158,7 @@ function processDownload(downloadItem, suggest) {
 
         } else if (type === 'counter') {
           // Counter type: use currentValue with padding, then increment
-          const currentValue = def.currentValue !== undefined ? def.currentValue : 0;
+          const currentValue = def.currentValue !== undefined ? def.currentValue : parseInt(def.startValue || '0', 10);
           const padding = def.padding || 0;
           placeholders[name] = String(currentValue).padStart(padding, '0');
 

@@ -142,47 +142,78 @@ function processDownload(downloadItem, suggest) {
       ext: ext
     };
 
-    // Apply custom placeholders derived from existing placeholders
+    // Apply custom placeholders based on their type
     if (Array.isArray(customPlaceholders) && customPlaceholders.length > 0) {
+      let counterUpdated = false;
+
       for (const def of customPlaceholders) {
         const name = (def && def.name) ? String(def.name) : '';
-        const from = (def && def.base) ? String(def.base) : '';
-        const regexStr = (def && def.regex) ? String(def.regex) : '';
-        const keywordsRaw = def && def.keywords !== undefined ? String(def.keywords) : '';
+        const type = (def && def.type) ? String(def.type) : 'regex';
 
-        if (!name || !from || !regexStr) {
-          continue;
+        if (!name) continue;
+
+        if (type === 'text') {
+          // Text type: use the static value directly
+          placeholders[name] = def.value ? String(def.value) : '';
+
+        } else if (type === 'counter') {
+          // Counter type: use currentValue with padding, then increment
+          const currentValue = def.currentValue !== undefined ? def.currentValue : 0;
+          const padding = def.padding || 0;
+          placeholders[name] = String(currentValue).padStart(padding, '0');
+
+          // Increment in memory
+          def.currentValue = currentValue + 1;
+          counterUpdated = true;
+
+        } else {
+          // Regex type (existing behavior)
+          const from = def.base ? String(def.base) : '';
+          const regexStr = def.regex ? String(def.regex) : '';
+          const keywordsRaw = def.keywords !== undefined ? String(def.keywords) : '';
+
+          if (!from || !regexStr) {
+            placeholders[name] = '';
+            continue;
+          }
+
+          const sourceValue = placeholders[from] || '';
+          if (!sourceValue) {
+            placeholders[name] = '';
+            continue;
+          }
+
+          // Keyword gating
+          const keywords = keywordsRaw
+            .split(',')
+            .map(k => k.trim())
+            .filter(k => k.length > 0);
+
+          const gatePass = keywords.length === 0
+            ? true
+            : keywords.some(k => sourceValue.toLowerCase().includes(k.toLowerCase()));
+
+          if (!gatePass) {
+            placeholders[name] = '';
+            continue;
+          }
+
+          try {
+            const re = new RegExp(regexStr);
+            const m = sourceValue.match(re);
+            placeholders[name] = (m && m[1]) ? String(m[1]) : '';
+          } catch (e) {
+            console.error('Invalid custom placeholder regex:', name, regexStr, e);
+            placeholders[name] = '';
+          }
         }
+      }
 
-        const sourceValue = placeholders[from] || '';
-        if (!sourceValue) {
-          placeholders[name] = '';
-          continue;
-        }
-
-        // Keyword gating: if keywords provided, ensure at least one keyword appears
-        const keywords = keywordsRaw
-          .split(',')
-          .map(k => k.trim())
-          .filter(k => k.length > 0);
-
-        const gatePass = keywords.length === 0
-          ? true
-          : keywords.some(k => sourceValue.toLowerCase().includes(k.toLowerCase()));
-
-        if (!gatePass) {
-          placeholders[name] = '';
-          continue;
-        }
-
-        try {
-          const re = new RegExp(regexStr);
-          const m = sourceValue.match(re);
-          placeholders[name] = (m && m[1]) ? String(m[1]) : '';
-        } catch (e) {
-          console.error('Invalid custom placeholder regex:', name, regexStr, e);
-          placeholders[name] = '';
-        }
+      // Persist counter updates to storage asynchronously
+      if (counterUpdated) {
+        chrome.storage.local.set({ customPlaceholders: customPlaceholders }, () => {
+          console.log('Counter values persisted to storage');
+        });
       }
     }
 
